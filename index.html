@@ -43,7 +43,7 @@ input[type=text]{flex:1;min-width:120px}
 .pl b{display:block;font-family:Fredoka;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #log{font-size:13px;margin:0;padding-left:16px;max-height:130px;overflow:auto}
 #mod{display:none;position:fixed;inset:0;background:rgba(27,42,73,.6);align-items:center;justify-content:center;padding:14px;z-index:9;overflow:auto}
-#mod .card{max-width:480px;width:100%}
+#mod .card{max-width:980px;width:100%;margin:auto}
 .q{font-size:19px;font-weight:800;margin:8px 0 12px}
 .ops{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ops .btn{font-size:20px}
@@ -53,7 +53,13 @@ input[type=text]{flex:1;min-width:120px}
 #fb{margin-top:12px}
 #fb p{margin:6px 0}
 @media(prefers-reduced-motion:reduce){#tbx i{transition:none}}
-.cr{white-space:pre-wrap;line-height:2.1}.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.25}.fr i{font-style:normal;padding:0 5px}.fr i:first-child{border-bottom:2px solid currentColor}s{text-decoration-thickness:2px;text-decoration-color:var(--red);color:var(--red)}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.25}.fr i{font-style:normal;padding:0 5px}.fr i:first-child{border-bottom:2px solid currentColor}s{text-decoration-thickness:2px;text-decoration-color:var(--red);color:var(--red)}
+canvas{display:block;width:100%;height:clamp(320px,52vh,560px);border:2px dashed var(--ink);border-radius:10px;background:#fff linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 28px;touch-action:none;cursor:crosshair}
+.pad{margin-top:14px}.btn.sm{font-size:13px;padding:4px 10px;box-shadow:0 2px 0 var(--ink)}
+#sol{background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:8px 14px;margin-top:10px}
+#sol p{margin:6px 0}#sol ol{margin:4px 0;padding-left:22px}#sol li{margin:12px 0}
+.cr{font:700 15px ui-monospace,Consolas,monospace;margin:4px 0 0;padding:6px 10px;border-left:4px solid var(--red);background:#fff linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 32px;overflow-x:auto;white-space:pre-wrap;line-height:2.1}
+canvas.xl{height:82vh}
 </style></head><body>
 <div class="wrap">
 
@@ -233,7 +239,7 @@ function info(title,txt,next){show(`<h2>${title}</h2><p class="q">${txt}</p><but
 function pay(P,amt,to){const a=Math.min(amt,P.m);P.m-=a;if(to!=null)S.pl[to].m+=a;return a}
 function ask(title,q,fx,next){
  const o=opts(q.a);
- show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map(v=>`<button class="btn alt" data-v="${v}">${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
+ show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map(v=>`<button class="btn alt" data-v="${v}">${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button><button class="btn alt sm" id="bg">⤢ Perbesar</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
  pad();
  const fin=v=>{const ok=v===q.a,P=cp();ok?P.ok++:P.no++;
   document.querySelectorAll('.ops .btn').forEach(b=>{b.disabled=true;if(+b.dataset.v===q.a)b.classList.add('ok');else if(+b.dataset.v===v)b.classList.add('no')});
@@ -245,15 +251,19 @@ function ask(title,q,fx,next){
  document.querySelectorAll('.ops .btn').forEach(b=>b.onclick=()=>fin(+b.dataset.v));
 }
 function pad(){
- const c=$('#cv'),x=c.getContext('2d'),b=c.getBoundingClientRect(),d=window.devicePixelRatio||1;
- c.width=b.width*d;c.height=b.height*d;x.scale(d,d);x.lineCap=x.lineJoin='round';
+ const c=$('#cv'),x=c.getContext('2d'),d=window.devicePixelRatio||1;
+ const fit=()=>{const o=document.createElement('canvas');o.width=c.width;o.height=c.height;if(o.width&&o.height)o.getContext('2d').drawImage(c,0,0);
+  const b=c.getBoundingClientRect();c.width=b.width*d;c.height=b.height*d;x.setTransform(d,0,0,d,0,0);x.lineCap=x.lineJoin='round';
+  if(o.width&&o.height)x.drawImage(o,0,0,o.width/d,o.height/d)};
+ fit();
  let dr=false,er=false,px,py;
  const pt=e=>{const q=c.getBoundingClientRect();return[e.clientX-q.left,e.clientY-q.top]};
- const seg=(nx,ny)=>{x.globalCompositeOperation=er?'destination-out':'source-over';x.strokeStyle='#1b2a49';x.lineWidth=er?20:2.5;x.beginPath();x.moveTo(px,py);x.lineTo(nx,ny);x.stroke();px=nx;py=ny};
+ const seg=(nx,ny)=>{x.globalCompositeOperation=er?'destination-out':'source-over';x.strokeStyle='#1b2a49';x.lineWidth=er?24:3;x.beginPath();x.moveTo(px,py);x.lineTo(nx,ny);x.stroke();px=nx;py=ny};
  c.onpointerdown=e=>{dr=true;[px,py]=pt(e);c.setPointerCapture(e.pointerId);seg(px+.1,py)};
  c.onpointermove=e=>{if(dr)seg(...pt(e))};
  c.onpointerup=c.onpointercancel=()=>dr=false;
  $('#pn').onclick=()=>er=false;$('#er').onclick=()=>er=true;$('#cl').onclick=()=>x.clearRect(0,0,c.width,c.height);
+ $('#bg').onclick=()=>{const on=c.classList.toggle('xl');$('#bg').textContent=on?'⤡ Perkecil':'⤢ Perbesar';fit();c.scrollIntoView({block:'nearest'})};
 }
 function land(){
  const P=cp(),i=P.pos,t=T[i],me=S.cur;
