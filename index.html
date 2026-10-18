@@ -48,11 +48,12 @@ input[type=text]{flex:1;min-width:120px}
 .ops{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ops .btn{font-size:20px}
 .ok{background:#b9f0c6!important}.no{background:#ffc2c7!important}
-#tb{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
-#tb i{display:block;height:100%;width:100%;background:var(--green);transition:width .1s linear}
+#tbx{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+#tbx i{display:block;height:100%;width:100%;background:var(--green);transition:width .1s linear}
 #fb{margin-top:12px}
 #fb p{margin:6px 0}
-@media(prefers-reduced-motion:reduce){#tb i{transition:none}}
+@media(prefers-reduced-motion:reduce){#tbx i{transition:none}}
+.cr{white-space:pre-wrap;line-height:2.1}.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.25}.fr i{font-style:normal;padding:0 5px}.fr i:first-child{border-bottom:2px solid currentColor}s{text-decoration-thickness:2px;text-decoration-color:var(--red);color:var(--red)}
 </style></head><body>
 <div class="wrap">
 
@@ -65,8 +66,7 @@ input[type=text]{flex:1;min-width:120px}
   <select id="lv"><option value="0">Campur</option><option value="7">Kelas VII</option><option value="8">Kelas VIII</option><option value="9">Kelas IX</option></select></div>
  <div id="names"></div>
  <div class="row"><label for="mr">Jumlah ronde</label>
-  <select id="mr"><option>6</option><option selected>8</option><option>10</option><option>12</option></select>
-  <label><input type="checkbox" id="tm" checked> Timer 30 detik</label></div>
+  <select id="mr"><option>6</option><option selected>8</option><option>10</option><option>12</option></select></div>
  <button class="btn" id="go" style="width:100%">Mulai Main</button>
  <ul class="rules">
   <li>Modal awal Rp1.500rb. Lewat START dapat gaji Rp200rb.</li>
@@ -102,31 +102,96 @@ const T=[
 {k:'p',n:'Gadget',e:'💻',p:300,g:'#52b788'}];
 function xy(i){return i<=5?[1,i+1]:i<=9?[i-4,6]:i<=15?[6,6-(i-10)]:[6-(i-15),1]}
 
-/* ---------- Bank soal ---------- */
-const lcm=(a,b)=>{let x=a,y=b;while(y)[x,y]=[y,x%y];return a*b/x};
+/* ---------- Bank soal (konteks Monopoli) + alat penjelasan rinci ---------- */
+const f=fmt,lcm=(a,b)=>{let x=a,y=b;while(y)[x,y]=[y,x%y];return a*b/x},gcd=(a,b)=>b?gcd(b,a%b):a;
+const mu=(x,l)=>Array.from({length:Math.ceil(l/x)+1},(_,i)=>x*(i+1)).join(', ');
+const Q=(q,a,dk,dt,dj,jw)=>({q,a,dk,dt,dj,jw});
+const T1=()=>pick(['Tim Merah','Tim Hijau','Tim Biru','Tim Kuning']);
+const PR=['Warung Bakso','Toko Buku','Kantin','Fotokopi','Kios Pulsa','Kafe','Bengkel','Toko Sepatu','Minimarket','Toko Gadget'];
+const pairs=s=>{const o=[];for(let i=1;i<=6;i++){const j=s-i;if(j>=1&&j<=6)o.push(`(${i},${j})`)}return o};
+const nz=n=>{const s=String(n),L=s.length,o=[];for(let i=0;i<L;i++)if(s[i]!=='0')o.push(+s[i]*10**(L-1-i));return o};
+const sk=(a,k)=>{const s=String(a);return s.slice(0,s.length-k)+'~'+s.slice(-k)+'~'};
+const ind=L=>L.map(s=>'   '+s);
+const fm=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/~([^~]*)~/g,'<s>$1</s>').replace(/\[([^\]|]*)\|([^\]]*)\]/g,'<span class="fr"><i>$1</i><i>$2</i></span>').replace(/(^|[^\w.,\/])(\d+)\/(\d+)(?![\w\/])/g,(m,a,b,c)=>a+'<span class="fr"><i>'+b+'</i><i>'+c+'</i></span>');
+const pr=(x,p)=>{if(p<10)return `${f(x)} × ${p} = ${f(x*p)}`;const k=String(p).length-1,d=p/10**k;return `${f(x)} × ${f(p)} → ${f(x)} × ${d} = ${f(x*d)}, lalu tambah ${k} nol di belakang = ${f(x*p)}`};
+function X(a,b){const R=a*b,A=nz(a),B=nz(b);let x=a,y=b;if(A.length>B.length||(A.length===B.length&&String(a).length>String(b).length))[x,y]=[b,a];const P=nz(y);
+ if(P.length===1)return[pr(x,y)];
+ const pp=P.map(p=>x*p),L=[`${f(x)} × ${f(y)}`,`= ${f(x)} × (${P.map(f).join(' + ')})   ← ${f(y)} dipecah menurut nilai tempat`];
+ P.forEach(p=>L.push('• '+pr(x,p)));
+ if(pp.length===2)L.push(`Jumlahkan: ${f(pp[0])} + ${f(pp[1])} = ${f(R)}`);else{let s=pp[0];for(let i=1;i<pp.length;i++){L.push(`${f(s)} + ${f(pp[i])} = ${f(s+pp[i])}`);s+=pp[i]}}
+ return L}
+function LD(a,b){const s=String(a);let rem=0,L=[];for(let i=0;i<s.length;i++){const c=rem*10+(+s[i]),d=Math.floor(c/b);rem=c%b;L.push(`${i?'turunkan '+s[i]+' → ':''}${c} ÷ ${b} = ${d}${rem?' sisa '+rem:''}`)}return L}
+function D(a,b){const R=a/b;if(b===1)return[`${f(a)} ÷ 1 = ${f(a)}`];const k=[10,100,1000,10000].indexOf(b)+1;
+ if(k&&a%b===0)return[`${f(a)} ÷ ${f(b)}: coret ${k} nol di belakang → ${sk(a,k)} → ${f(R)}`];
+ return[`${f(a)} ÷ ${b}  (bagi bersusun)`,...(a>=100?ind(LD(a,b)):[]),`Hasil: ${f(R)}`,`Cek: ${b} × ${f(R)} = ${f(b*R)} ✓`]}
+function PCT(p,h){const g=gcd(p,100),n=p/g,m=100/g,R=h*p/100,L=[`${p}% artinya ${p} per 100 → [${p}|100]`];
+ if(g>1)L.push(g===10?`Sederhanakan: coret satu nol di atas dan di bawah → [${p/10}~0~|10~0~] = [${n}|${m}]`:`Sederhanakan: atas dan bawah sama-sama dibagi ${g} → [${p} ÷ ${g}|100 ÷ ${g}] = [${n}|${m}]`);
+ L.push(`Sekarang hitung [${n}|${m}] × ${f(h)}`);
+ if(h%m===0){L.push(`Langkah A: bagi ${f(h)} dengan penyebut ${m}`,...ind(D(h,m)),`Hasilnya ${f(h/m)}`);if(n>1)L.push(`Langkah B: kalikan dengan pembilang ${n}`,...ind(X(h/m,n)));else L.push('Pembilangnya 1, jadi tidak perlu dikali lagi.')}
+ else L.push(`Langkah A: kalikan ${n} × ${f(h)}`,...ind(X(n,h)),`Langkah B: bagi dengan ${m}`,...ind(D(n*h,m)));
+ L.push(`Jadi ${p}% dari ${f(h)} = ${f(R)}`);return L}
+function PB(h,p,plus){const t=plus?100+p:100-p,g=gcd(t,100),n=t/g,m=100/g,R=h*t/100,o=plus?'+':'−',L=[`Rumus: Harga bayar = [100% ${o} ${p}%|100%] × harga`,`Isi angkanya: [100% ${o} ${p}%|100%] × ${f(h)}`,`Hitung bagian atas: 100 ${o} ${p} = ${t} → [${t}%|100%] × ${f(h)}`,`Tanda % di atas dan bawah sama, boleh dicoret → [${t}|100] × ${f(h)}`];
+ if(g>1)L.push(g===10?`Sederhanakan: coret satu nol di atas dan di bawah → [${t/10}~0~|10~0~] = [${n}|${m}]`:`Sederhanakan: atas dan bawah sama-sama dibagi ${g} → [${t} ÷ ${g}|100 ÷ ${g}] = [${n}|${m}]`);
+ L.push(`Sekarang hitung [${n}|${m}] × ${f(h)}`);
+ if(h%m===0){L.push(`Langkah A: bagi ${f(h)} dengan penyebut ${m}`,...ind(D(h,m)),`Hasilnya ${f(h/m)}`);if(n>1)L.push(`Langkah B: kalikan dengan pembilang ${n}`,...ind(X(h/m,n)));else L.push('Pembilangnya 1, jadi tidak perlu dikali lagi.')}
+ else L.push(`Langkah A: kalikan ${n} × ${f(h)}`,...ind(X(n,h)),`Langkah B: bagi dengan ${m}`,...ind(D(n*h,m)));
+ L.push(`Jadi harga bayar = ${f(R)}`);return L}
 const G7=[
-()=>{const p=pick([5,10,20,25,50]),n=r(4,40)*20,a=n*p/100;return{q:`${p}% dari ${n} = ...?`,a,e:`${p}/100 × ${n} = ${a}`}},
-()=>{const f=pick([[1,2],[1,4],[3,4],[2,5],[3,5],[1,5]]),n=f[1]*r(3,15),a=n/f[1]*f[0];return{q:`${f[0]}/${f[1]} dari ${n} = ...?`,a,e:`${n} ÷ ${f[1]} × ${f[0]} = ${a}`}},
-()=>{const a=-r(2,20),b=r(5,30),c=r(2,15);return{q:`(${a}) + ${b} − (−${c}) = ...?`,a:a+b+c,e:`${a} + ${b} + ${c} = ${a+b+c}`}},
-()=>{const p=r(5,20),l=r(3,12);return{q:`Persegi panjang berukuran ${p} cm × ${l} cm. Luasnya (cm²)?`,a:p*l,e:`${p} × ${l} = ${p*l}`}},
-()=>{const m=r(60,90),n=[0,0,0,0].map(()=>r(m-10,m+10)),l=5*m-n.reduce((s,v)=>s+v,0);n.push(l);return{q:`Rata-rata nilai 5 siswa: ${n.join(', ')}. Berapa rata-ratanya?`,a:m,e:`Jumlah = ${5*m}, dibagi 5 = ${m}`}},
-()=>{const x=r(1,4),y=x+r(1,4),k=r(3,12);return{q:`Uang Ani : Budi = ${x} : ${y}. Jumlah Rp${(x+y)*k}rb. Uang Ani (rb)?`,a:x*k,e:`1 bagian = ${(x+y)*k} ÷ ${x+y} = ${k}; Ani = ${x} × ${k}`}},
-()=>{const [a,b]=pick([[4,6],[6,8],[10,15],[12,18],[9,12],[8,12],[5,7]]);return{q:`KPK dari ${a} dan ${b} = ...?`,a:lcm(a,b),e:`Kelipatan persekutuan terkecil = ${lcm(a,b)}`}}];
+()=>{const n=pick(PR),h=r(3,25)*20,p=pick([10,20,25,50]),d=h*p/100;return Q(`Di ${n}, harga properti ${rp(h)} sedang diskon ${p}%. Berapa rupiah (rb) yang dihemat?`,d,`Harga normal = ${h}rb; Diskon = ${p}%`,`Besar penghematan (nilai diskon)`,
+[[`Hitung ${p}% dari ${f(h)}`,...PCT(p,h)],['Cek masuk akal',`Diskon ${p}% ${p<50?'kurang dari':'tepat'} setengah harga.`,`Setengah harga = ${f(h/2)}, dan ${f(d)} ${p<50?'<':'='} ${f(h/2)} ✓`]],`penghematannya ${rp(d)}.`)},
+()=>{const t=T1(),fq=pick([[1,2],[1,4],[3,4],[2,5],[3,5],[1,5],[2,3]]),M=fq[1]*r(20,80),u=M/fq[1],used=u*fq[0],a=M-used;return Q(`${t} punya modal ${rp(M)}. Sebanyak ${fq[0]}/${fq[1]} bagian dipakai untuk membeli aset. Berapa sisa uangnya (rb)?`,a,`Modal = ${M}rb; Dipakai = ${fq[0]}/${fq[1]} bagian`,`Sisa uang`,
+[['Cari nilai 1 bagian',`Penyebut ${fq[1]} → modal dibagi ${fq[1]} bagian sama besar`,...D(M,fq[1])],['Hitung uang yang dipakai',`Pembilang ${fq[0]} → ${fq[0]} bagian dipakai`,...X(u,fq[0])],['Hitung sisa',`Sisa = modal − dipakai`,`${f(M)} − ${f(used)} = ${f(a)}`],['Cek dengan cara lain',`Sisa = [${fq[1]-fq[0]}|${fq[1]}] bagian = ${fq[1]-fq[0]} × ${f(u)}`,...X(u,fq[1]-fq[0]),`= ${f(a)} ✓ (sama)`]],`sisa uangnya ${rp(a)}.`)},
+()=>{const t=T1(),m=r(8,15)*100,g1=r(2,6)*50,l1=r(1,4)*50,g2=r(2,6)*50,l2=r(1,4)*50,G=g1+g2,L=l1+l2;return Q(`${t} bermodal ${rp(m)}. Hasil 4 ronde: +${g1} (gaji), −${l1} (pajak), +${g2} (sewa), −${l2} (denda). Uang akhirnya (rb)?`,m+G-L,`Modal = ${m}rb; Perubahan = +${g1}, −${l1}, +${g2}, −${l2}`,`Uang akhir`,
+[['Kelompokkan yang bertanda positif (uang masuk)',`${g1} + ${g2} = ${G}`],['Kelompokkan yang bertanda negatif (uang keluar)',`${l1} + ${l2} = ${L}`],['Cari perubahan bersih',`Masuk − keluar = ${G} − ${L} = ${G-L}`,G-L>=0?'Hasil positif → uang bertambah':'Hasil negatif → uang berkurang'],['Tambahkan ke modal awal',`${f(m)} + (${G-L}) = ${f(m+G-L)}`]],`uang akhirnya ${rp(m+G-L)}.`)},
+()=>{const [n1,n2]=shuf(PR),x=r(1,4),y=x+r(1,4),k=r(3,12),J=(x+y)*k;return Q(`Pendapatan ${n1} : ${n2} = ${x} : ${y}. Jumlah pendapatan keduanya ${rp(J)}. Berapa pendapatan ${n1} (rb)?`,x*k,`${n1} : ${n2} = ${x} : ${y}; Jumlah = ${J}rb`,`Pendapatan ${n1}`,
+[['Jumlahkan angka perbandingan',`${x} + ${y} = ${x+y} bagian`],['Cari nilai 1 bagian',`Jumlah uang ÷ jumlah bagian`,...D(J,x+y)],[`Hitung bagian ${n1}`,`${n1} punya ${x} bagian`,...X(k,x)],['Cek',`${n2} = ${y} × ${k} = ${y*k}`,`${x*k} + ${y*k} = ${J} ✓ (sama dengan jumlah)`]],`pendapatan ${n1} adalah ${rp(x*k)}.`)},
+()=>{const n=pick(PR),p=r(8,25),l=r(5,p-1),k=r(1,9),K=2*(p+l);return Q(`Tanah ${n} berbentuk persegi panjang ${p} m × ${l} m, dipagari seluruh sisinya. Biaya pagar ${rp(k)} per meter. Total biaya (rb)?`,K*k,`Panjang = ${p} m; Lebar = ${l} m; Biaya = ${k}rb per meter`,`Total biaya pagar`,
+[['Pagar mengelilingi tanah, jadi hitung keliling',`K = 2 × (panjang + lebar)`],['Jumlahkan panjang dan lebar dulu',`${p} + ${l} = ${p+l}`],['Kalikan dengan 2',...X(2,p+l),`K = ${K} m`],['Kalikan dengan biaya per meter',`${K} m × ${k}rb`,...X(K,k)]],`total biaya pagar ${rp(K*k)}.`)},
+()=>{const t=T1(),m=r(40,120),n=[0,0,0,0,0].map(()=>r(m-20,m+20));n[4]=5*m-n.slice(0,4).reduce((s,v)=>s+v,0);const c=[];let s=n[0];for(let i=1;i<5;i++){c.push(`${s} + ${n[i]} = ${s+n[i]}`);s+=n[i]}return Q(`Pendapatan sewa ${t} selama 5 ronde (rb): ${n.join(', ')}. Berapa rata-rata pendapatan per ronde (rb)?`,m,`Data: ${n.join(', ')}; Banyak data = 5`,`Rata-rata`,
+[['Ingat rumus',`Rata-rata = jumlah semua data ÷ banyak data`],['Jumlahkan data satu per satu',...c],['Bagi dengan banyak data (5)',...D(5*m,5)]],`rata-rata pendapatannya ${rp(m)} per ronde.`)},
+()=>{const [a,b]=pick([[4,6],[6,8],[10,15],[12,18],[9,12],[8,12],[5,7]]),l=lcm(a,b),g=gcd(a,b),[x,y]=shuf(['Tim Merah','Tim Hijau']);return Q(`${x} kena pajak tiap ${a} ronde, ${y} tiap ${b} ronde. Pada ronde ke berapa keduanya pertama kali kena pajak bersamaan?`,l,`${x}: tiap ${a} ronde; ${y}: tiap ${b} ronde`,`Ronde pertama yang sama (KPK ${a} dan ${b})`,
+[[`Tulis ronde pajak ${x}`,`Kelipatan ${a}: ${mu(a,l)}`],[`Tulis ronde pajak ${y}`,`Kelipatan ${b}: ${mu(b,l)}`],['Cari angka yang sama paling kecil',`Yang sama pertama kali: ${l}`],['Cek dengan rumus',`KPK = (${a} × ${b}) ÷ FPB`,`FPB(${a}, ${b}) = ${g}`,...X(a,b),...D(a*b,g)]],`keduanya kena pajak bersamaan di ronde ke-${l}.`)},
+()=>{const h=r(2,9)*100+pick([-3,-2,-1,1,2,3]),B=Math.round(h/100)*100,p=pick([10,20,25,50]),a=B*(100-p)/100;return Q(`Estimasi cepat! Sebuah aset harganya ${rp(h)} diskon ${p}%. Bulatkan harga ke ratusan terdekat, lalu taksir harga bayarnya (rb).`,a,`Harga = ${h}rb; Diskon = ${p}%`,`Taksiran harga bayar`,
+[['Bulatkan harga ke ratusan terdekat',`${h} paling dekat dengan ${B}`],['Hitung harga bayar setelah diskon dari harga bulat',...PB(B,p,false)],['Catatan',`Ini hasil taksiran. Hitungan tepat dari ${h} sedikit berbeda, tetapi cukup dekat untuk memutuskan beli atau tidak.`]],`taksiran harga bayarnya ${rp(a)}.`)},
+()=>{const a=r(1,4)*10,b=r(1,4)*5,h=r(2,6);return Q(`Sewa sebuah aset = ${a} + ${b}h (rb), dengan h = jumlah rumah. Jika ada ${h} rumah, berapa sewanya (rb)?`,a+b*h,`Rumus sewa = ${a} + ${b}h; h = ${h}`,`Nilai sewa`,
+[['Pahami bentuk aljabar',`${b}h artinya ${b} × h`],['Substitusi (ganti h dengan angka)',`Sewa = ${a} + ${b} × ${h}`],['Kerjakan perkalian lebih dulu (kali sebelum tambah)',...X(b,h)],['Baru jumlahkan',`${a} + ${b*h} = ${a+b*h}`]],`sewanya ${rp(a+b*h)}.`)}];
 const G8=[
-()=>{const x=r(2,15),m=r(2,9),c=r(1,20);return{q:`${m}x + ${c} = ${m*x+c}. Nilai x = ...?`,a:x,e:`${m}x = ${m*x}, x = ${x}`}},
-()=>{const [a,b,c]=pick([[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[12,16,20]]);return{q:`Segitiga siku-siku bersisi tegak ${a} cm dan ${b} cm. Sisi miringnya (cm)?`,a:c,e:`${a}² + ${b}² = ${a*a+b*b}, akarnya ${c}`}},
-()=>{const b=r(2,15)*40,p=pick([10,20,25,50]),a=b*(100+p)/100;return{q:`Barang dibeli Rp${b}rb lalu dijual untung ${p}%. Harga jual (rb)?`,a,e:`${b} × ${100+p}% = ${a}`}},
-()=>{const n=pick([60,120,180,240]),d=pick([[3,'kelipatan 3'],[6,'angka 6'],[2,'angka genap (½ peluang)']]),a=d[0]===2?n/2:n/d[0];return{q:`Dadu dilempar ${n} kali. Harapan muncul ${d[1]} = ... kali?`,a,e:`Frekuensi harapan = peluang × ${n} = ${a}`}},
-()=>{const R=pick([7,14,21,28,35]),a=44*R/7;return{q:`Keliling lingkaran berjari-jari ${R} cm (π = 22/7) = ... cm?`,a,e:`2 × 22/7 × ${R} = ${a}`}},
-()=>{const x=r(5,20),y=r(1,x-1);return{q:`x + y = ${x+y} dan x − y = ${x-y}. Nilai x = ...?`,a:x,e:`Jumlahkan: 2x = ${2*x}, x = ${x}`}},
-()=>{const h=r(2,12)*50,a=h*72/100;return{q:`Harga Rp${h}rb diskon 20%, lalu diskon 10% lagi. Harga akhir (rb)?`,a,e:`${h} × 80% × 90% = ${a}`}}];
+()=>{const t=T1(),m=r(2,5),x=r(6,30)*10,c=r(1,6)*10,T=m*x+c;return Q(`${t} membeli ${m} aset berharga sama, lalu membayar pajak ${rp(c)}. Total uang keluar ${rp(T)}. Berapa harga satu aset (rb)?`,x,`Jumlah aset = ${m}; Pajak = ${c}rb; Total keluar = ${T}rb`,`Harga satu aset (x)`,
+[['Buat model persamaan',`Misal harga 1 aset = x`,`${m}x + ${c} = ${T}`],['Pindahkan konstanta (lawan operasinya)',`${m}x + ${c} − ${c} = ${T} − ${c}`,`${m}x = ${T-c}`],['Bagi kedua ruas dengan koefisien x',`x = ${T-c} ÷ ${m}`,...D(T-c,m)],['Cek dengan substitusi',`${m} × ${x}:`,...X(m,x),`${m*x} + ${c} = ${T} ✓`]],`harga satu aset ${rp(x)}.`)},
+()=>{const [A,B]=shuf(['Kantin','Kafe','Bengkel','Minimarket']).slice(0,2),x=r(5,20)*10,y=r(5,20)*10,P=2*x+y,S=x+y;return Q(`2 ${A} + 1 ${B} harganya ${rp(P)}. 1 ${A} + 1 ${B} harganya ${rp(S)}. Berapa harga 1 ${A} (rb)?`,x,`2 ${A} + 1 ${B} = ${P}; 1 ${A} + 1 ${B} = ${S}`,`Harga 1 ${A}`,
+[['Buat model SPLDV',`x = harga ${A}, y = harga ${B}`,`(1) 2x + y = ${P}`,`(2) x + y = ${S}`],['Eliminasi y: kurangkan (1) − (2)',`(2x + y) − (x + y) = ${P} − ${S}`,`2x − x + y − y = ${P-S}`,`x = ${x}`],['Cari y dengan substitusi ke (2)',`${x} + y = ${S}`,`y = ${S} − ${x} = ${y}`],['Cek di persamaan (1)',`2 × ${x} + ${y} = ${2*x} + ${y} = ${P} ✓`]],`harga 1 ${A} adalah ${rp(x)}.`)},
+()=>{const t=T1(),b=r(2,15)*40,p=pick([10,20,25,50]),ug=Math.random()<.6,u=b*p/100,a=ug?b+u:b-u,w=ug?'untung':'rugi';return Q(`${t} membeli aset ${rp(b)}, lalu menjualnya dengan ${w} ${p}%. Berapa harga jualnya (rb)?`,a,`Harga beli = ${b}rb; ${w} = ${p}%`,`Harga jual`,
+[[`Harga jual = harga beli ${ug?'+':'−'} ${w}`,`Maka harga jual = ${ug?100+p:100-p}% dari harga beli`],['Hitung dengan rumus pecahan',...PB(b,p,ug)],['Cek masuk akal',ug?`${a} > ${b}, jadi memang untung ✓`:`${a} < ${b}, jadi memang rugi ✓`]],`harga jualnya ${rp(a)}.`)},
+()=>{const s=pick([3,4,5,6,7,8,9,10,11]),ps=pairs(s),c=ps.length,n=pick([36,72,108,144,180]),a=c*n/36;return Q(`Dua dadu dilempar bersamaan ${n} kali. Berapa kali diharapkan muncul jumlah mata dadu ${s}?`,a,`Banyak lemparan = ${n}; Kejadian = jumlah mata ${s}`,`Frekuensi harapan Fh`,
+[['Cari banyak seluruh kemungkinan',`Ruang sampel = 6 × 6 = 36 pasang`],[`Daftar pasangan berjumlah ${s}`,ps.join(' '),`Banyaknya = ${c} pasang`],['Hitung peluang',`P = [${c}|36]`],['Hitung frekuensi harapan',`Fh = P × banyak lemparan = [${c}|36] × ${n}`,`Langkah A: bagi ${n} dengan 36`,...ind(D(n,36)),`Langkah B: kalikan dengan ${c}`,...ind(X(n/36,c))]],`diharapkan muncul ${a} kali.`)},
+()=>{const n=pick(PR),[a,b,c]=pick([[3,4,5],[5,12,13],[8,15,17]]),k=r(1,3),A=a*k,B=b*k,C=c*k;return Q(`Tanah ${n} berbentuk persegi panjang ${A} m × ${B} m. Berapa panjang jalan diagonal dari satu sudut ke sudut seberangnya (m)?`,C,`Panjang = ${A} m; Lebar = ${B} m`,`Panjang diagonal (c)`,
+[['Diagonal membentuk segitiga siku-siku',`Sisi tegaknya ${A} dan ${B}; diagonal = sisi miring`],['Pakai teorema Pythagoras',`c² = ${A}² + ${B}²`],[`Hitung ${A}²`,...X(A,A)],[`Hitung ${B}²`,...X(B,B)],['Jumlahkan',`c² = ${A*A} + ${B*B} = ${A*A+B*B}`],['Tarik akar kuadrat',`c = √${A*A+B*B}`,`Cari bilangan yang jika dikali dirinya sendiri = ${A*A+B*B}`,...X(C,C),`Jadi c = ${C}`]],`panjang diagonalnya ${C} m.`)},
+()=>{const R=pick([7,14,21]),k=r(2,6),K=44*R/7;return Q(`Taman bundar berjari-jari ${R} m dipagari keliling penuh. Biaya pagar ${rp(k)} per meter (π = 22/7). Total biaya (rb)?`,K*k,`r = ${R} m; π = 22/7; Biaya = ${k}rb per meter`,`Total biaya pagar`,
+[['Pagar mengelilingi lingkaran, hitung keliling',`K = 2 × π × r = 2 × 22/7 × ${R}`,`2 × 22 = 44, jadi K = 44/7 × ${R}`],[`Bagi ${R} dengan 7 dulu (supaya mudah)`,...D(R,7)],['Kalikan dengan 44',...X(44,R/7),`K = ${K} m`],['Kalikan biaya per meter',`${K} m × ${k}rb`,...X(K,k)]],`total biaya pagar ${rp(K*k)}.`)},
+()=>{const h=r(2,12)*50,m=h*4/5,a=h*72/100;return Q(`Harga aset ${rp(h)} diskon 20%, lalu ada diskon tambahan 10% dari harga setelah diskon pertama. Harga akhir (rb)?`,a,`Harga awal = ${h}rb; Diskon 20%, lalu 10%`,`Harga akhir`,
+[['Diskon pertama 20%',...PB(h,20,false)],['Diskon kedua 10% dari harga yang baru',`Harga baru = ${f(m)}`,...PB(m,10,false)],['Peringatan: bukan diskon 30%!',`30% dari ${h} → harga bayar ${f(h*.7)}, sedangkan hasil kita ${f(a)}.`,`Diskon bertingkat dihitung bertahap.`]],`harga akhirnya ${rp(a)}.`)},
+()=>{const n=pick(PR),h=r(2,20)*50,R=h*112/100;return Q(`${n} dijual ${rp(h)} dan dikenai pajak 12%. Berapa yang harus dibayar (rb)?`,R,`Harga = ${h}rb; Pajak = 12%`,`Harga yang harus dibayar`,
+[['Pahami: pajak menambah harga',`Harga bayar = harga + pajak 12% = 112% dari harga`],['Hitung dengan rumus pecahan',...PB(h,12,true)],['Cek dengan cara lain',`Pajak = 12% × ${f(h)} = ${f(h*12/100)}`,`Harga + pajak = ${f(h)} + ${f(h*12/100)} = ${f(R)} ✓`]],`yang harus dibayar ${rp(R)}.`)},
+()=>{let d1,d2,s;do{d1=pick([10,20,25,30,40]);d2=pick([10,20,25,30,50]);s=(100-d1)*d2/100}while(!Number.isInteger(s));const T=d1+s;return Q(`Sebuah aset didiskon ${d1}%, lalu didiskon lagi ${d2}% dari harga setelah diskon pertama. Berapa persen total diskon sebenarnya?`,T,`Diskon 1 = ${d1}%; Diskon 2 = ${d2}% (dari harga sisa)`,`Total diskon (%)`,
+[['Diskon pertama',`Diskon 1 = ${d1}%`,`Harga tersisa = 100% − ${d1}% = ${100-d1}%`],[`Diskon kedua = ${d2}% dari ${100-d1}% (bukan dari 100%!)`,...PCT(d2,100-d1),`Diskon 2 = ${s}%`],['Jumlahkan kedua diskon',`Total = ${d1}% + ${s}% = ${T}%`],['Cek',`Harga akhir = ${100-d1}% − ${s}% = ${100-T}% dari harga awal`,`Jadi ${d1}% + ${d2}% TIDAK sama dengan ${d1+d2}%.`]],`total diskon sebenarnya ${T}%.`)}];
 const G9=[
-()=>{if(Math.random()<.5){const s=r(11,25);return{q:`√${s*s} = ...?`,a:s,e:`${s} × ${s} = ${s*s}`}}const b=r(2,5),n=r(2,4);return{q:`${b}^${n} = ...?`,a:b**n,e:`${b} dikali sendiri ${n} kali = ${b**n}`}},
-()=>{const a=r(2,10),b=r(2,6),n=r(8,20);return{q:`Barisan ${a}, ${a+b}, ${a+2*b}, ... Suku ke-${n} = ...?`,a:a+(n-1)*b,e:`U${n} = ${a} + ${n-1} × ${b}`}},
-()=>{const M=r(2,20)*500,p=pick([4,5,6,8,10]),t=r(2,4),a=M*p*t/100;return{q:`Tabungan Rp${M}rb berbunga tunggal ${p}% per tahun. Bunga ${t} tahun (rb)?`,a,e:`${M} × ${p}% × ${t} = ${a}`}},
-()=>{const R=pick([7,14]),t=r(5,20),a=22*R*R*t/7;return{q:`Volume tabung jari-jari ${R} cm, tinggi ${t} cm (π = 22/7) dalam cm³?`,a,e:`22/7 × ${R}² × ${t} = ${a}`}},
-()=>{const n=shuf([5,8,12,15,19,23,30,41,47,50]).slice(0,5);const s=[...n].sort((x,y)=>x-y);return{q:`Median dari data: ${n.join(', ')} = ...?`,a:s[2],e:`Urutkan: ${s.join(', ')}. Tengahnya ${s[2]}`}},
-()=>{const S=pick([100000,200000,500000,1000000,2000000]),d=r(2,9),a=d*S/100000;return{q:`Skala peta 1 : ${fmt(S)}. Jarak di peta ${d} cm. Jarak sebenarnya (km)?`,a,e:`${d} × ${fmt(S)} cm = ${a} km`}}];
+()=>{const t=T1(),a=r(2,10)*10,b=r(1,5)*10,n=r(8,15),u=a+(n-1)*b;return Q(`${t} menabung ${rp(a)} di ronde 1, lalu naik ${rp(b)} tiap ronde. Berapa tabungan di ronde ke-${n} (rb)?`,u,`Suku pertama a = ${a}; Beda b = ${b}; n = ${n}`,`Suku ke-${n} (U${n})`,
+[['Kenali barisan aritmetika',`${a}, ${a+b}, ${a+2*b}, ...  (selalu naik ${b})`],['Tulis rumus suku ke-n',`Un = a + (n − 1) × b`],['Substitusi angka',`U${n} = ${a} + (${n} − 1) × ${b}`,`U${n} = ${a} + ${n-1} × ${b}`],[`Hitung ${n-1} × ${b} lebih dulu`,...X(n-1,b)],['Baru jumlahkan',`U${n} = ${a} + ${(n-1)*b} = ${u}`]],`tabungan ronde ke-${n} adalah ${rp(u)}.`)},
+()=>{const t=T1(),a=r(2,8)*10,b=r(1,4)*10,n=pick([6,8,10,12]),i=2*a+(n-1)*b,S=n/2*i;return Q(`${t} menabung ${rp(a)} di ronde 1, naik ${rp(b)} tiap ronde. Total tabungan sampai ronde ke-${n} (rb)?`,S,`a = ${a}; b = ${b}; n = ${n}`,`Jumlah ${n} suku pertama (S${n})`,
+[['Gunakan rumus deret aritmetika',`Sn = [n|2] × (2a + (n − 1) × b)`],['Hitung 2a',`2 × ${a} = ${2*a}`],['Hitung (n − 1) × b',`(${n} − 1) × ${b} = ${n-1} × ${b}`,...X(n-1,b)],['Isi kurung',`${2*a} + ${(n-1)*b} = ${i}`],['Hitung n/2',`[${n}|2] = ${n/2}`],[`Kalikan ${n/2} × ${i}`,...X(n/2,i)]],`total tabungannya ${rp(S)}.`)},
+()=>{const a=r(1,5)*10,q=pick([2,3]),n=r(4,6),t=[];for(let i=0;i<n;i++)t.push(a*q**i);return Q(`Sewa sebuah aset ${rp(a)} di ronde 1, lalu menjadi ${q} kali lipat tiap ronde. Sewa di ronde ke-${n} (rb)?`,t[n-1],`a = ${a}; Rasio r = ${q}; n = ${n}`,`Suku ke-${n} (U${n})`,
+[['Kenali barisan geometri',`Tiap suku dikali ${q}`],['Tulis rumus',`Un = a × r^(n − 1)`],['Substitusi',`U${n} = ${a} × ${q}^(${n} − 1) = ${a} × ${q}^${n-1}`],[`Hitung ${q}^${n-1}`,`${q}^${n-1} = ${Array(n-1).fill(q).join(' × ')}`,...Array.from({length:n-1},(_,i)=>`${q}^${i+1} = ${q**(i+1)}`)],[`Kalikan ${a} × ${q**(n-1)}`,...X(a,q**(n-1))],['Cek dengan menulis semua suku',t.map((v,i)=>i?`× ${q} → ${v}`:`${v}`).join('  ')]],`sewa ronde ke-${n} adalah ${rp(t[n-1])}.`)},
+()=>{const M=r(2,20)*500,p=pick([4,5,6,8,10]),y=r(2,4),b1=M*p/100,B=b1*y;return Q(`Modal ${rp(M)} disimpan dengan bunga tunggal ${p}% per tahun selama ${y} tahun. Berapa total uang di akhir (rb)?`,M+B,`Modal M = ${M}rb; Bunga = ${p}% per tahun; Waktu = ${y} tahun`,`Total uang akhir`,
+[['Hitung bunga untuk 1 tahun',...PCT(p,M)],[`Bunga tunggal: sama tiap tahun, kalikan ${y} tahun`,...X(b1,y)],['Total = modal + bunga',`${f(M)} + ${f(B)} = ${f(M+B)}`]],`total uangnya ${rp(M+B)}.`)},
+()=>{const [p,y]=pick([[10,2],[10,3],[20,2]]),M=r(1,5)*1000,v=[M];for(let i=0;i<y;i++)v.push(v[i]*(100+p)/100);const st=[['Pahami bunga majemuk',`Bunga tahun berikutnya dihitung dari uang tahun sebelumnya (bunga berbunga).`]];for(let i=1;i<=y;i++)st.push([`Tahun ke-${i}: bunga ${p}% dari ${f(v[i-1])}`,...PCT(p,v[i-1]),`Uang akhir tahun ${i} = ${f(v[i-1])} + ${f(v[i]-v[i-1])} = ${f(v[i])}`]);return Q(`Modal ${rp(M)} berbunga majemuk ${p}% per tahun. Berapa uangnya setelah ${y} tahun (rb)?`,v[y],`Modal = ${M}rb; Bunga majemuk = ${p}%/tahun; Waktu = ${y} tahun`,`Uang setelah ${y} tahun`,st,`uangnya menjadi ${rp(v[y])}.`)},
+()=>{const n=pick(PR),s=pick([100,200,500]),fc=s/100,p=r(2,6),l=r(2,6),P=p*fc,Lb=l*fc;return Q(`Denah tanah ${n} berskala 1 : ${s}. Ukuran di denah ${p} cm × ${l} cm. Berapa luas tanah sebenarnya (m²)?`,P*Lb,`Skala = 1 : ${s}; Denah = ${p} cm × ${l} cm`,`Luas tanah sebenarnya (m²)`,
+[['Artikan skala',`1 cm di denah = ${s} cm asli = ${fc} m`],['Panjang sebenarnya',`${p} × ${fc}`,...X(p,fc),`Panjang = ${P} m`],['Lebar sebenarnya',`${l} × ${fc}`,...X(l,fc),`Lebar = ${Lb} m`],['Hitung luas persegi panjang',`L = panjang × lebar = ${P} × ${Lb}`,...X(P,Lb)],['Awas jebakan!',`Luas denah ${p*l} cm² BUKAN dikali ${s}, tetapi dikali ${s}² (skala dikuadratkan).`]],`luas tanah sebenarnya ${P*Lb} m².`)},
+()=>{const n=pick(PR),s=r(8,25),k=r(1,5);return Q(`Tanah ${n} berbentuk persegi seluas ${s*s} m². Dipagari keliling penuh dengan biaya ${rp(k)} per meter. Total biaya (rb)?`,4*s*k,`Luas = ${s*s} m²; Biaya = ${k}rb per meter`,`Total biaya pagar`,
+[['Cari panjang sisi dari luas',`Luas persegi = s × s = ${s*s}`,`s = √${s*s}: cari bilangan yang dikali dirinya = ${s*s}`,...X(s,s),`Jadi s = ${s} m`],['Hitung keliling persegi',`K = 4 × s = 4 × ${s}`,...X(4,s)],['Kalikan biaya per meter',`${4*s} m × ${k}rb`,...X(4*s,k)]],`total biaya pagar ${rp(4*s*k)}.`)},
+()=>{let c1,c2,g,l,v;do{c1=r(1,4);c2=6-c1;g=r(2,6)*30;l=r(1,5)*20;v=(c1*g-c2*l)/6}while(!Number.isInteger(v));const tot=c1*g-c2*l;return Q(`Analisis risiko: dari 6 kartu kejutan, ${c1} kartu memberi +${g}rb dan ${c2} kartu memberi −${l}rb. Berapa rata-rata hasil per kartu (rb)? (Jawaban negatif ditulis dengan tanda minus.)`,v,`${c1} kartu: +${g}rb; ${c2} kartu: −${l}rb; Total kartu = 6`,`Rata-rata hasil per kartu`,
+[['Hitung total keuntungan kartu bagus',`${c1} × ${g}`,...X(c1,g)],['Hitung total kerugian kartu buruk',`${c2} × ${l}`,...X(c2,l)],['Cari hasil bersih seluruh kartu',`${c1*g} − ${c2*l} = ${tot}`],['Bagi dengan banyak kartu (6)',...(tot<0?[`Hasil negatif, jadi bagi ${-tot} lalu beri tanda minus`]:[]),...D(Math.abs(tot),6),`Hasil akhir = ${v}`],['Tafsirkan risikonya',v>0?'Hasilnya positif: mengambil kartu cenderung menguntungkan.':v<0?'Hasilnya negatif: mengambil kartu cenderung merugikan.':'Hasilnya nol: impas.']],`rata-rata hasilnya ${v} rb per kartu.`)},
+()=>{const R=pick([7,14]),t=r(5,15),V=22*R*R*t/7;return Q(`Tandon air properti berbentuk tabung berjari-jari ${R} dm dan tinggi ${t} dm (π = 22/7). Berapa liter kapasitasnya? (1 dm³ = 1 liter)`,V,`r = ${R} dm; t = ${t} dm; π = 22/7`,`Volume tabung (liter)`,
+[['Tulis rumus volume tabung',`V = π × r² × t = 22/7 × ${R}² × ${t}`],['Hitung r² lebih dulu',`${R}² = ${R} × ${R}`,...X(R,R)],['Bagi r² dengan 7 (supaya 7 hilang)',...D(R*R,7)],['Kalikan dengan 22',...X(22,R*R/7)],[`Kalikan dengan tinggi ${t}`,...X(22*R*R/7,t)],['Ubah satuan',`1 dm³ = 1 liter, jadi ${f(V)} dm³ = ${f(V)} liter`]],`kapasitasnya ${f(V)} liter.`)}];
 function newQ(){const lv=+S.lvl,g=lv==7?G7:lv==8?G8:lv==9?G9:[...G7,...G8,...G9];return pick(g)()}
 function opts(a){const s=new Set([a]),d=Math.max(1,Math.round(Math.abs(a)*.1));let n=0;while(s.size<4&&n++<99){const v=a+pick([-10,-5,-3,-2,-1,1,2,3,5,10,d,-d,2*d]);if(v!==a&&(a<0||v>=0))s.add(v)}return shuf([...s])}
 
@@ -167,15 +232,28 @@ const hide=()=>$('#mod').style.display='none';
 function info(title,txt,next){show(`<h2>${title}</h2><p class="q">${txt}</p><button class="btn" id="nx">Lanjut</button>`);$('#nx').onclick=next}
 function pay(P,amt,to){const a=Math.min(amt,P.m);P.m-=a;if(to!=null)S.pl[to].m+=a;return a}
 function ask(title,q,fx,next){
- const o=opts(q.a);let tm,left=30;
- show(`<h2>${title}</h2><p class="q">${q.q}</p>${S.timer?'<div id="tb"><i></i></div>':''}<div class="ops">${o.map(v=>`<button class="btn alt" data-v="${v}">${fmt(v)}</button>`).join('')}</div><div id="fb"></div>`);
- const fin=v=>{clearInterval(tm);const ok=v===q.a,P=cp();ok?P.ok++:P.no++;
+ const o=opts(q.a);
+ show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map(v=>`<button class="btn alt" data-v="${v}">${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
+ pad();
+ const fin=v=>{const ok=v===q.a,P=cp();ok?P.ok++:P.no++;
   document.querySelectorAll('.ops .btn').forEach(b=>{b.disabled=true;if(+b.dataset.v===q.a)b.classList.add('ok');else if(+b.dataset.v===v)b.classList.add('no')});
   const t=fx(ok);render();
-  $('#fb').innerHTML=`<p><b>${v==null?'⏰ Waktu habis!':ok?'✅ Benar!':'❌ Belum tepat'}</b> Jawaban: ${fmt(q.a)}</p><p>💡 ${q.e}</p><p>${t}</p><button class="btn" id="nx">Lanjut</button>`;
+  const sol=`<div id="sol" hidden><p><b>Diketahui:</b><br>${q.dk.split('; ').map(x=>'• '+fm(x)).join('<br>')}</p><p><b>Ditanya:</b> ${fm(q.dt)}</p><p><b>Dijawab:</b></p><ol>${q.dj.map(x=>`<li><b>${fm(x[0])}</b><div class="cr">${x.slice(1).map(fm).join('\n')}</div></li>`).join('')}</ol><p><b>Jadi, ${fm(q.jw)}</b></p></div>`;
+  $('#fb').innerHTML=`<p><b>${ok?'✅ Benar!':'❌ Belum tepat'}</b> Jawaban: ${fmt(q.a)}</p><p>${t}</p><div class="row"><button class="btn alt" id="sv">📝 Cara Penyelesaian</button><button class="btn" id="nx">Lanjut</button></div>${sol}`;
+  $('#sv').onclick=()=>{const e=$('#sol');e.hidden=!e.hidden};
   $('#nx').onclick=next;$('#nx').focus()};
  document.querySelectorAll('.ops .btn').forEach(b=>b.onclick=()=>fin(+b.dataset.v));
- if(S.timer)tm=setInterval(()=>{left-=.1;const i=document.querySelector('#tb i');i&&(i.style.width=left/30*100+'%');if(left<=0)fin(null)},100);
+}
+function pad(){
+ const c=$('#cv'),x=c.getContext('2d'),b=c.getBoundingClientRect(),d=window.devicePixelRatio||1;
+ c.width=b.width*d;c.height=b.height*d;x.scale(d,d);x.lineCap=x.lineJoin='round';
+ let dr=false,er=false,px,py;
+ const pt=e=>{const q=c.getBoundingClientRect();return[e.clientX-q.left,e.clientY-q.top]};
+ const seg=(nx,ny)=>{x.globalCompositeOperation=er?'destination-out':'source-over';x.strokeStyle='#1b2a49';x.lineWidth=er?20:2.5;x.beginPath();x.moveTo(px,py);x.lineTo(nx,ny);x.stroke();px=nx;py=ny};
+ c.onpointerdown=e=>{dr=true;[px,py]=pt(e);c.setPointerCapture(e.pointerId);seg(px+.1,py)};
+ c.onpointermove=e=>{if(dr)seg(...pt(e))};
+ c.onpointerup=c.onpointercancel=()=>dr=false;
+ $('#pn').onclick=()=>er=false;$('#er').onclick=()=>er=true;$('#cl').onclick=()=>x.clearRect(0,0,c.width,c.height);
 }
 function land(){
  const P=cp(),i=P.pos,t=T[i],me=S.cur;
@@ -184,18 +262,21 @@ function land(){
   if(O[i]===me)return info(t.e+' '+t.n,'Ini asetmu sendiri. Aman!',endTurn);
   if(O[i]<0){
    const d=pick([10,15,20,25,30,40,50]),a=t.p*(100-d)/100;let disc=false;
-   return ask(`🏷️ ${t.n} (${rp(t.p)})`,{q:`Diskon ${d}%! Harga normal Rp${t.p}rb. Harga setelah diskon (rb)?`,a,e:`${t.p} × ${100-d}% = ${a}`},
+   return ask(`🏷️ ${t.n} (${rp(t.p)})`,Q(`Diskon ${d}%! ${t.n} (harga normal ${rp(t.p)}). Berapa harga setelah diskon (rb)?`,a,`Harga normal = ${t.p}rb; Diskon = ${d}%`,`Harga yang harus dibayar`,[['Hitung harga setelah diskon',...PB(t.p,d,false)],['Cek dengan cara lain',`Besar diskon = ${d}% × ${t.p} = ${t.p*d/100}`,`${t.p} − ${t.p*d/100} = ${a} ✓`]],`harga setelah diskon ${rp(a)}.`),
+
     ok=>{disc=ok;return ok?`Kamu berhak harga diskon ${rp(a)}.`:`Harga normal ${rp(t.p)} berlaku.`},
     ()=>{const pr=disc?a:t.p;show(`<h2>${t.e} ${t.n}</h2><p class="q">Beli seharga ${rp(pr)}? Uangmu ${rp(P.m)}.</p><div class="row"><button class="btn" id="by" ${P.m<pr?'disabled':''}>Beli</button><button class="btn alt" id="sk">Lewati</button></div>`);
      $('#by').onclick=()=>{P.m-=pr;O[i]=me;log(`${P.n} membeli ${t.n} (${rp(pr)})`);endTurn()};$('#sk').onclick=endTurn});
   }
   const p=pick([10,15,20,25,50]),rent=t.p*p/100,ow=O[i];
-  return ask(`🏠 Sewa ${t.n} milik ${S.pl[ow].n}`,{q:`Sewa = ${p}% dari harga Rp${t.p}rb. Berapa sewanya (rb)?`,a:rent,e:`${t.p} × ${p}% = ${rent}`},
+  return ask(`🏠 Sewa ${t.n} milik ${S.pl[ow].n}`,Q(`Sewa ${t.n} = ${p}% dari harga properti ${rp(t.p)}. Berapa sewanya (rb)?`,rent,`Harga properti = ${t.p}rb; Sewa = ${p}% dari harga`,`Besar sewa`,[['Hitung sewa',...PCT(p,t.p)],['Cek masuk akal',`Sewa ${rent} lebih kecil dari harga ${t.p} ✓`]],`sewanya ${rp(rent)}.`),
+
    ok=>{const a=pay(P,ok?rent:rent+10,ow);log(`${P.n} bayar sewa ${rp(a)} ke ${S.pl[ow].n}`);return`Kamu membayar ${rp(a)} ke ${S.pl[ow].n}${ok?'.':' (termasuk denda 10).'}`},endTurn);
  }
  if(t.k==='t'){
   const inc=r(5,20)*40,p=pick([10,20,25,50]),a=inc*p/100;
-  return ask('🧾 Pajak Penghasilan',{q:`Penghasilanmu Rp${inc}rb, pajak ${p}%. Berapa pajaknya (rb)?`,a,e:`${inc} × ${p}% = ${a}`},
+  return ask('🧾 Pajak Penghasilan',Q(`Penghasilanmu ${rp(inc)} kena pajak ${p}%. Berapa pajaknya (rb)?`,a,`Penghasilan = ${inc}rb; Pajak = ${p}%`,`Besar pajak`,[['Hitung pajak',...PCT(p,inc)],['Uang tersisa setelah pajak',`${inc} − ${a} = ${inc-a}`]],`pajaknya ${rp(a)}.`),
+
    ok=>{const b=pay(P,ok?a:a+20);log(`${P.n} bayar pajak ${rp(b)}`);return`Pajak dibayar ${rp(b)}${ok?'.':' (termasuk denda 20).'}`},endTurn);
  }
  if(t.k==='q'){
@@ -223,7 +304,7 @@ function names(){const n=+$('#np').value,old=[...document.querySelectorAll('#nam
 $('#np').onchange=names;names();
 $('#go').onclick=()=>{
  const ns=[...document.querySelectorAll('#names input')].map((x,i)=>x.value.trim()||'Tim '+(i+1));
- S={pl:ns.map(n=>({n,pos:0,m:1500,ok:0,no:0})),cur:0,round:1,max:+$('#mr').value,lvl:$('#lv').value,timer:$('#tm').checked,log:['Permainan dimulai. Selamat berhitung!']};
+ S={pl:ns.map(n=>({n,pos:0,m:1500,ok:0,no:0})),cur:0,round:1,max:+$('#mr').value,lvl:$('#lv').value,log:['Permainan dimulai. Selamat berhitung!']};
  O=Array(20).fill(-1);$('#setup').style.display='none';$('#game').style.display='grid';buildBoard();render();
 };
 </script></body></html>
