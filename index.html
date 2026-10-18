@@ -60,12 +60,47 @@ canvas{display:block;width:100%;height:clamp(320px,52vh,560px);border:2px dashed
 #sol p{margin:6px 0}#sol ol{margin:4px 0;padding-left:22px}#sol li{margin:12px 0}
 .cr{font:700 15px ui-monospace,Consolas,monospace;margin:4px 0 0;padding:6px 10px;border-left:4px solid var(--red);background:#fff linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 32px;overflow-x:auto;white-space:pre-wrap;line-height:2.1}
 canvas.xl{height:82vh}
+
+header.top{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:16px;padding:10px 16px;margin-bottom:14px;box-shadow:0 5px 0 rgba(27,42,73,.25)}
+header.top .logo{font-size:34px;background:var(--coin);border-radius:12px;padding:2px 8px;transform:rotate(-8deg)}
+header.top b{font-size:24px;display:block;line-height:1.1}header.top small{opacity:.8;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}.chips span{background:var(--paper);border:2px solid var(--ink);border-radius:20px;padding:2px 10px;font-size:13px;font-weight:800}
+#setup{box-shadow:8px 8px 0 var(--coin),8px 8px 0 2px var(--ink)}
+.k-s{background:#d4f4df}.k-t{background:#ffe0e3}.k-c{background:#eadcff}.k-q{background:#d9edff}.k-r{background:#fff1c9}
+.t .bar{height:24%}.t.k-p .e{margin-top:14%}
+.t b{font-family:Fredoka,sans-serif;font-weight:500}
+#board{box-shadow:0 8px 0 rgba(27,42,73,.28);border-radius:18px}
+.pw i{box-shadow:0 2px 0 rgba(0,0,0,.35)}.pw i.me{animation:hop .7s ease-in-out infinite;z-index:2}
+@keyframes hop{50%{transform:translateY(-5px) scale(1.15)}}
+#mid{box-shadow:inset 0 0 0 3px var(--ink)}
+#mid h2{text-shadow:2px 2px 0 var(--coin)}
+.die{display:inline-grid;grid-template:repeat(3,1fr)/repeat(3,1fr);width:clamp(34px,7vw,58px);aspect-ratio:1;background:#fff;border:3px solid var(--ink);border-radius:22%;padding:11%;gap:3%;box-shadow:0 4px 0 var(--ink);margin:0 5px}
+.die b{border-radius:50%}.die b.on{background:var(--ink)}
+#dice.shake .die{animation:wob .18s linear infinite}
+@keyframes wob{25%{transform:rotate(-14deg) translateY(-4px)}75%{transform:rotate(14deg) translateY(2px)}}
+#roll{animation:glow 1.6s ease-in-out infinite}#roll:disabled{animation:none}
+@keyframes glow{50%{box-shadow:0 4px 0 var(--ink),0 0 0 6px rgba(245,183,0,.45)}}
+#mod{backdrop-filter:blur(3px)}
+#mod .card{animation:pop .22s ease-out}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+#mod .card.good{border-color:var(--green);box-shadow:6px 6px 0 var(--green)}
+#mod .card.bad{border-color:var(--red);box-shadow:6px 6px 0 var(--red);animation:nope .35s}
+@keyframes nope{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.ops .btn{display:flex;align-items:center;gap:10px;justify-content:center;padding:14px 10px;font-size:22px}
+.ops .btn u{text-decoration:none;font-size:14px;background:var(--ink);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center}
+.ops .btn:not(:disabled):hover{transform:translateY(-2px);background:#fff6d6}
+.pl{background:#fff}.pl.on{background:#fff2c2;transform:scale(1.02)}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:20;overflow:hidden}
+#cf span{position:absolute;top:-40px;font-size:28px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div class="wrap">
+<header class="top"><span class="logo">🎲</span><div><b class="f">Monopoli Numerasi</b><small>Literasi &amp; Numerasi · Kelas VII, VIII, IX</small></div></header>
 
 <div id="setup" class="card">
  <h1>Monopoli Numerasi</h1>
- <p style="margin:0 0 8px">Beli aset, hitung diskon, bayar sewa dan pajak. Semua lewat hitungan cepat!</p>
+ <p style="margin:0 0 8px">Beli aset, hitung diskon, bayar sewa dan pajak. Semua lewat hitungan cepat!</p><div class="chips"><span>⚡ Berhitung cepat</span><span>🏷️ Estimasi diskon</span><span>💰 Kelola modal</span><span>🎯 Analisis risiko</span></div>
  <div class="row"><label for="np">Jumlah tim</label>
   <select id="np"><option>2</option><option selected>3</option><option>4</option></select>
   <label for="lv">Soal</label>
@@ -206,24 +241,27 @@ let S={},O=[];
 const cp=()=>S.pl[S.cur],worth=i=>S.pl[i].m+O.reduce((s,o,j)=>s+(o===i?T[j].p:0),0);
 function log(t){S.log.unshift(t);S.log=S.log.slice(0,30)}
 function buildBoard(){
- $('#board').innerHTML=T.map((t,i)=>{const [rw,c]=xy(i);return`<div class="t" id="t${i}" style="grid-area:${rw}/${c}">${t.g?`<div class="bar" style="background:${t.g}"></div>`:''}<span class="e">${t.e}</span><b>${t.n}</b>${t.p?`<small>${rp(t.p)}</small>`:''}<div class="pw"></div></div>`}).join('')+
- `<div id="mid"><h2>MONOPOLI<br>NUMERASI</h2><div id="turn"></div><div id="dice">⚀⚀</div><button class="btn" id="roll">🎲 Lempar Dadu</button></div>`;
- $('#roll').onclick=roll;
+ $('#board').innerHTML=T.map((t,i)=>{const [rw,c]=xy(i);return`<div class="t k-${t.k}" id="t${i}" style="grid-area:${rw}/${c}">${t.g?`<div class="bar" style="background:${t.g}"></div>`:''}<span class="e">${t.e}</span><b>${t.n}</b>${t.p?`<small>${rp(t.p)}</small>`:''}<div class="pw"></div></div>`}).join('')+
+ `<div id="mid"><h2>MONOPOLI<br>NUMERASI</h2><div id="turn"></div><div id="dice"></div><button class="btn" id="roll">🎲 Lempar Dadu</button></div>`;
+ $('#roll').onclick=roll;face(3,4);
 }
 function render(){
  T.forEach((t,i)=>{const el=$('#t'+i);el.style.boxShadow=O[i]>=0?`inset 0 0 0 4px ${COL[O[i]]}`:'none';
-  el.querySelector('.pw').innerHTML=S.pl.map((p,j)=>p.pos===i?`<i style="background:${COL[j]}"></i>`:'').join('')});
+  el.querySelector('.pw').innerHTML=S.pl.map((p,j)=>p.pos===i?`<i class="${j===S.cur?'me':''}" style="background:${COL[j]}"></i>`:'').join('')});
  $('#rd').textContent=Math.min(S.round,S.max)+' / '+S.max;
- $('#pls').innerHTML=S.pl.map((p,i)=>`<div class="pl${i===S.cur?' on':''}"><span class="dot" style="background:${COL[i]}"></span><div><b>${p.n}</b>${rp(p.m)} · ${O.filter(o=>o===i).length} aset<br>✔ ${p.ok} ✘ ${p.no}</div></div>`).join('');
+ $('#pls').innerHTML=S.pl.map((p,i)=>`<div class="pl${i===S.cur?' on':''}"><span class="dot" style="background:${COL[i]}"></span><div><b>${p.n}</b>${rp(p.m)} · ${O.filter(o=>o===i).length} aset<br>Kekayaan ${rp(worth(i))}<br>✔ ${p.ok} ✘ ${p.no}</div></div>`).join('');
  $('#turn').innerHTML=`Giliran: <span style="color:${COL[S.cur]}">${cp().n}</span>`;
  $('#log').innerHTML=S.log.map(l=>`<li>${l}</li>`).join('');
 }
-const face=(a,b)=>$('#dice').textContent=String.fromCharCode(9855+a)+String.fromCharCode(9855+b);
+const DOT={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+const die=n=>`<span class="die">${Array.from({length:9},(_,i)=>`<b${DOT[n].includes(i+1)?' class="on"':''}></b>`).join('')}</span>`;
+const face=(a,b)=>$('#dice').innerHTML=die(a)+die(b);
+function confetti(){const c=document.createElement('div');c.id='cf';c.innerHTML=Array.from({length:44},()=>`<span style="left:${r(0,98)}%;animation-delay:${r(0,20)/10}s;animation-duration:${r(25,50)/10}s">${pick(['🎉','🪙','⭐','💰','✨'])}</span>`).join('');document.body.appendChild(c);setTimeout(()=>c.remove(),7000)}
 
 /* ---------- Jalannya permainan ---------- */
 function roll(){
- $('#roll').disabled=true;let n=0;
- const an=setInterval(()=>{face(r(1,6),r(1,6));if(++n>8){clearInterval(an);const a=r(1,6),b=r(1,6);face(a,b);log(`${cp().n} melempar ${a}+${b} = ${a+b}`);move(a+b)}},70);
+ $('#roll').disabled=true;$('#dice').classList.add('shake');let n=0;
+ const an=setInterval(()=>{face(r(1,6),r(1,6));if(++n>8){clearInterval(an);const a=r(1,6),b=r(1,6);$('#dice').classList.remove('shake');face(a,b);log(`${cp().n} melempar ${a}+${b} = ${a+b}`);move(a+b)}},70);
 }
 function move(k){
  const P=cp(),st=setInterval(()=>{
@@ -239,11 +277,11 @@ function info(title,txt,next){show(`<h2>${title}</h2><p class="q">${txt}</p><but
 function pay(P,amt,to){const a=Math.min(amt,P.m);P.m-=a;if(to!=null)S.pl[to].m+=a;return a}
 function ask(title,q,fx,next){
  const o=opts(q.a);
- show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map(v=>`<button class="btn alt" data-v="${v}">${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button><button class="btn alt sm" id="bg">⤢ Perbesar</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
+ show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map((v,k)=>`<button class="btn alt" data-v="${v}"><u>${'ABCD'[k]}</u>${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button><button class="btn alt sm" id="bg">⤢ Perbesar</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
  pad();
  const fin=v=>{const ok=v===q.a,P=cp();ok?P.ok++:P.no++;
   document.querySelectorAll('.ops .btn').forEach(b=>{b.disabled=true;if(+b.dataset.v===q.a)b.classList.add('ok');else if(+b.dataset.v===v)b.classList.add('no')});
-  const t=fx(ok);render();
+  const t=fx(ok);render();$('#mod .card').classList.add(ok?'good':'bad');
   const sol=`<div id="sol" hidden><p><b>Diketahui:</b><br>${q.dk.split('; ').map(x=>'• '+fm(x)).join('<br>')}</p><p><b>Ditanya:</b> ${fm(q.dt)}</p><p><b>Dijawab:</b></p><ol>${q.dj.map(x=>`<li><b>${fm(x[0])}</b><div class="cr">${x.slice(1).map(fm).join('\n')}</div></li>`).join('')}</ol><p><b>Jadi, ${fm(q.jw)}</b></p></div>`;
   $('#fb').innerHTML=`<p><b>${ok?'✅ Benar!':'❌ Belum tepat'}</b> Jawaban: ${fmt(q.a)}</p><p>${t}</p><div class="row"><button class="btn alt" id="sv">📝 Cara Penyelesaian</button><button class="btn" id="nx">Lanjut</button></div>${sol}`;
   $('#sv').onclick=()=>{const e=$('#sol');e.hidden=!e.hidden};
@@ -305,7 +343,7 @@ function endTurn(){
 function over(){
  const rk=S.pl.map((p,i)=>({p,i,w:worth(i)})).sort((a,b)=>b.w-a.w);
  show(`<h2>🏆 Pemenang: ${rk[0].p.n}!</h2><p class="q">Kekayaan = uang + harga aset.</p>`+rk.map((x,k)=>`<div class="pl"><span class="dot" style="background:${COL[x.i]}"></span><div><b>${k+1}. ${x.p.n} — ${rp(x.w)}</b>Soal benar ${x.p.ok}, salah ${x.p.no}${x.p.ok+x.p.no?` (${Math.round(100*x.p.ok/(x.p.ok+x.p.no))}%)`:''}</div></div>`).join('')+`<div class="row"><button class="btn" id="ag">Main Lagi</button></div>`);
- $('#ag').onclick=()=>location.reload();
+ $('#ag').onclick=()=>location.reload();confetti();
 }
 
 /* ---------- Pengaturan awal ---------- */
