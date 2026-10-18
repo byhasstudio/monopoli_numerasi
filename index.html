@@ -24,14 +24,14 @@ input[type=text]{flex:1;min-width:120px}
 .rules{font-size:14px;margin:8px 0 0;padding-left:18px}
 #game{display:none;grid-template-columns:minmax(0,1fr) 290px;gap:14px;align-items:start}
 @media(max-width:820px){#game{grid-template-columns:1fr}}
-#board{display:grid;grid-template:repeat(6,1fr)/repeat(6,1fr);gap:3px;aspect-ratio:1;background:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:3px}
-.t{background:#fff;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(7px,1.5vw,12px);line-height:1.15;text-align:center;overflow:hidden;border-radius:4px;min-width:0}
+#board{display:grid;grid-template:repeat(11,1fr)/repeat(11,1fr);gap:3px;aspect-ratio:1;background:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:3px}
+.t{background:#fff;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(5px,.95vw,10px);line-height:1.15;text-align:center;overflow:hidden;border-radius:4px;min-width:0}
 .t .bar{position:absolute;top:0;left:0;right:0;height:16%}
 .t .e{font-size:1.9em}
 .t small{font-size:.9em;opacity:.8}
 .pw{position:absolute;bottom:1px;left:0;right:0;display:flex;gap:1px;justify-content:center;flex-wrap:wrap}
 .pw i{width:clamp(9px,2vw,16px);height:clamp(9px,2vw,16px);border-radius:50%;border:2px solid var(--ink)}
-#mid{grid-area:2/2/6/6;background:var(--paper);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:18px 18px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center}
+#mid{grid-area:2/2/11/11;background:var(--paper);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:18px 18px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center}
 #mid h2{font-size:clamp(16px,3.6vw,30px);color:var(--red)}
 #turn{font:700 clamp(12px,2.2vw,18px) Fredoka}
 #dice{font-size:clamp(34px,8vw,64px);line-height:1;letter-spacing:4px}
@@ -94,6 +94,10 @@ header.top b{font-size:24px;display:block;line-height:1.1}header.top small{opaci
 #cf span{position:absolute;top:-40px;font-size:28px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.t .e{font-size:1.6em}.t b{font-size:.95em;line-height:1.05}.t.k-p .e{margin-top:18%}
+.hs{position:absolute;top:0;left:0;right:0;font-size:.85em;line-height:1.1;z-index:1}.t.mg{opacity:.5}
+.k-d{background:#d9edff}.k-j,.k-w{background:#ffd6a5}.k-f{background:#e8ffd9}.k-n,.k-u{background:#f1f1f1}
+.pw i{width:clamp(6px,1.3vw,12px);height:clamp(6px,1.3vw,12px)}#mid .btn{margin:0}
 </style></head><body>
 <div class="wrap">
 <header class="top"><span class="logo">🎲</span><div><b class="f">Monopoli Numerasi</b><small>Literasi &amp; Numerasi · Kelas VII, VIII, IX</small></div></header>
@@ -106,14 +110,15 @@ header.top b{font-size:24px;display:block;line-height:1.1}header.top small{opaci
   <label for="lv">Soal</label>
   <select id="lv"><option value="0">Campur</option><option value="7">Kelas VII</option><option value="8">Kelas VIII</option><option value="9">Kelas IX</option></select></div>
  <div id="names"></div>
- <div class="row"><label for="mr">Jumlah ronde</label>
-  <select id="mr"><option>6</option><option selected>8</option><option>10</option><option>12</option></select></div>
+ <div class="row"><label for="cap">Modal awal</label><select id="cap"><option value="1000">Rp1.000rb</option><option value="1500" selected>Rp1.500rb</option><option value="2000">Rp2.000rb</option><option value="3000">Rp3.000rb</option></select><label for="mr">Ronde</label><select id="mr"><option value="10">10</option><option value="15" selected>15</option><option value="20">20</option><option value="30">30</option><option value="0">Sampai bangkrut</option></select></div>
  <button class="btn" id="go" style="width:100%">Mulai Main</button>
  <ul class="rules">
-  <li>Modal awal Rp1.500rb. Lewat START dapat gaji Rp200rb.</li>
-  <li>Petak kosong: jawab soal diskon. Benar = beli dengan harga diskon, salah = harga normal.</li>
-  <li>Petak milik tim lain: hitung sewa. Salah kena denda Rp10rb.</li>
-  <li>Pemenang: kekayaan terbesar (uang + harga aset) saat ronde habis.</li>
+  <li>Tiap tim mulai dengan modal pilihanmu (standar Rp1.500rb). Lewat START dapat gaji Rp200rb.</li>
+  <li>Lempar 2 dadu. Kembar = lempar lagi; kembar 3x berturut-turut = masuk penjara.</li>
+  <li>Petak kosong (properti, stasiun, PLN/PDAM): jawab soal diskon, benar = harga diskon, salah = harga normal. Boleh beli atau lewati.</li>
+  <li>Kuasai semua petak satu warna: sewa 2x, lalu bangun rumah (maks. 4) dan hotel lewat tombol Kelola Aset (bisa juga gadai).</li>
+  <li>Petak milik tim lain: hitung sewanya. Salah kena denda Rp10rb. Ada juga Pajak, Kartu Kejutan, Dana Umum, dan Penjara.</li>
+  <li>Uang kurang: rumah dijual dan aset digadai otomatis. Masih kurang = bangkrut. Menang: sisa terakhir, atau kekayaan terbesar saat ronde habis.</li>
  </ul>
 </div>
 
@@ -131,17 +136,14 @@ header.top b{font-size:24px;display:block;line-height:1.1}header.top small{opaci
 const $=s=>document.querySelector(s),r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,pick=a=>a[r(0,a.length-1)],fmt=n=>n.toLocaleString('id-ID'),rp=n=>'Rp'+fmt(n)+'rb';
 const shuf=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
 const COL=['#e63946','#2a9d8f','#3a6ea5','#f5b700'];
-const T=[
-{k:'s',n:'START',e:'🏁'},
-{k:'p',n:'Bakso',e:'🍜',p:100,g:'#9c6644'},{k:'t',n:'Pajak',e:'🧾'},{k:'c',n:'Kejutan',e:'🎴'},
-{k:'p',n:'Toko Buku',e:'📚',p:120,g:'#9c6644'},{k:'r',n:'Rehat',e:'🛋️'},
-{k:'p',n:'Kantin',e:'🥤',p:140,g:'#4cc9f0'},{k:'p',n:'Fotokopi',e:'🖨️',p:160,g:'#4cc9f0'},{k:'c',n:'Kejutan',e:'🎴'},
-{k:'p',n:'Pulsa',e:'📱',p:180,g:'#f72585'},{k:'q',n:'Kuis',e:'❓'},
-{k:'p',n:'Kafe',e:'☕',p:200,g:'#f72585'},{k:'t',n:'Pajak',e:'🧾'},{k:'c',n:'Kejutan',e:'🎴'},
-{k:'p',n:'Bengkel',e:'🔧',p:220,g:'#fb8500'},{k:'q',n:'Kuis',e:'❓'},
-{k:'p',n:'Sepatu',e:'👟',p:240,g:'#fb8500'},{k:'p',n:'Minimarket',e:'🛒',p:260,g:'#52b788'},{k:'c',n:'Kejutan',e:'🎴'},
-{k:'p',n:'Gadget',e:'💻',p:300,g:'#52b788'}];
-function xy(i){return i<=5?[1,i+1]:i<=9?[i-4,6]:i<=15?[6,6-(i-10)]:[6-(i-15),1]}
+const Pp=(n,e,p)=>({k:'p',n,e,p,r0:2*Math.round(p/30)}),Xx=(k,n,e,p)=>({k,n,e,p});
+const T=[Xx('s','START','🏁'),Pp('Warung Bakso','🍜',60),Xx('d','Dana Umum','📦'),Pp('Toko Buku','📚',60),Xx('t','Pajak','🧾'),Xx('n','Stasiun Gambir','🚆',200),Pp('Kantin','🥤',100),Xx('c','Kejutan','🎴'),Pp('Fotokopi','🖨️',100),Pp('Pulsa','📱',120),Xx('j','Penjara','🚔'),
+Pp('Kafe','☕',140),Xx('u','Listrik PLN','⚡',150),Pp('Bengkel','🔧',140),Pp('Sepatu','👟',160),Xx('n','Stasiun Bogor','🚆',200),Pp('Barbershop','💈',180),Xx('d','Dana Umum','📦'),Pp('Bioskop','🎬',180),Pp('Toko Mainan','🧸',200),Xx('f','Parkir Bebas','🅿️'),
+Pp('Minimarket','🛒',220),Xx('c','Kejutan','🎴'),Pp('Apotek','💊',220),Pp('Gadget','💻',240),Xx('n','Stasiun Depok','🚆',200),Pp('Hotel Melati','🏨',260),Pp('Restoran','🍽️',260),Xx('u','Air PDAM','💧',150),Pp('Gym','🏋️',280),Xx('w','Masuk Penjara','👮'),
+Pp('Mal','🏬',300),Pp('Showroom','🏍️',300),Xx('d','Dana Umum','📦'),Pp('Pabrik','🏭',320),Xx('n','Stasiun Kota','🚆',200),Xx('c','Kejutan','🎴'),Pp('Apartemen','🏢',350),Xx('t','Pajak Mewah','💎'),Pp('Gedung Tinggi','🌆',400)];
+[['#9c6644',50,1,3],['#4cc9f0',50,6,8,9],['#f72585',100,11,13,14],['#fb8500',100,16,18,19],['#e63946',150,21,23,24],['#f5b700',150,26,27,29],['#52b788',200,31,32,34],['#1d3fbb',200,37,39]].forEach(([c,h,...ix])=>ix.forEach(i=>{T[i].g=c;T[i].hc=h;T[i].set=ix}));
+function xy(i){return i<=10?[11,11-i]:i<=20?[21-i,1]:i<=30?[1,i-19]:[i-29,11]}
+
 
 /* ---------- Bank soal (konteks Monopoli) + alat penjelasan rinci ---------- */
 const f=fmt,lcm=(a,b)=>{let x=a,y=b;while(y)[x,y]=[y,x%y];return a*b/x},gcd=(a,b)=>b?gcd(b,a%b):a;
@@ -237,21 +239,24 @@ function newQ(){const lv=+S.lvl,g=lv==7?G7:lv==8?G8:lv==9?G9:[...G7,...G8,...G9]
 function opts(a){const s=new Set([a]),d=Math.max(1,Math.round(Math.abs(a)*.1));let n=0;while(s.size<4&&n++<99){const v=a+pick([-10,-5,-3,-2,-1,1,2,3,5,10,d,-d,2*d]);if(v!==a&&(a<0||v>=0))s.add(v)}return shuf([...s])}
 
 /* ---------- Status & tampilan ---------- */
-let S={},O=[];
-const cp=()=>S.pl[S.cur],worth=i=>S.pl[i].m+O.reduce((s,o,j)=>s+(o===i?T[j].p:0),0);
+let S={},O=[],H=[],Mg=[];
+const cp=()=>S.pl[S.cur],worth=i=>S.pl[i].m+O.reduce((s,o,j)=>s+(o===i?(Mg[j]?T[j].p/2:T[j].p)+H[j]*(T[j].hc||0):0),0);
+const full=i=>{const t=T[i];return !!t.set&&t.set.every(j=>O[j]===O[i])};
 function log(t){S.log.unshift(t);S.log=S.log.slice(0,30)}
 function buildBoard(){
- $('#board').innerHTML=T.map((t,i)=>{const [rw,c]=xy(i);return`<div class="t k-${t.k}" id="t${i}" style="grid-area:${rw}/${c}">${t.g?`<div class="bar" style="background:${t.g}"></div>`:''}<span class="e">${t.e}</span><b>${t.n}</b>${t.p?`<small>${rp(t.p)}</small>`:''}<div class="pw"></div></div>`}).join('')+
- `<div id="mid"><h2>MONOPOLI<br>NUMERASI</h2><div id="turn"></div><div id="dice"></div><button class="btn" id="roll">🎲 Lempar Dadu</button></div>`;
- $('#roll').onclick=roll;face(3,4);
+ $('#board').innerHTML=T.map((t,i)=>{const [rw,c]=xy(i);return`<div class="t k-${t.k}" id="t${i}" style="grid-area:${rw}/${c}">${t.g?`<div class="bar" style="background:${t.g}"></div>`:''}<span class="hs"></span><span class="e">${t.e}</span><b>${t.n}</b>${t.p?`<small>${t.p}</small>`:''}<div class="pw"></div></div>`}).join('')+
+ `<div id="mid"><h2>MONOPOLI<br>NUMERASI</h2><div id="turn"></div><div id="dice"></div><button class="btn" id="roll">🎲 Lempar Dadu</button><button class="btn alt" id="mg">🏗️ Kelola Aset</button></div>`;
+ $('#roll').onclick=roll;$('#mg').onclick=manage;face(3,4);
 }
 function render(){
- T.forEach((t,i)=>{const el=$('#t'+i);el.style.boxShadow=O[i]>=0?`inset 0 0 0 4px ${COL[O[i]]}`:'none';
-  el.querySelector('.pw').innerHTML=S.pl.map((p,j)=>p.pos===i?`<i class="${j===S.cur?'me':''}" style="background:${COL[j]}"></i>`:'').join('')});
- $('#rd').textContent=Math.min(S.round,S.max)+' / '+S.max;
- $('#pls').innerHTML=S.pl.map((p,i)=>`<div class="pl${i===S.cur?' on':''}"><span class="dot" style="background:${COL[i]}"></span><div><b>${p.n}</b>${rp(p.m)} · ${O.filter(o=>o===i).length} aset<br>Kekayaan ${rp(worth(i))}<br>✔ ${p.ok} ✘ ${p.no}</div></div>`).join('');
+ T.forEach((t,i)=>{const el=$('#t'+i);el.style.boxShadow=O[i]>=0?`inset 0 0 0 3px ${COL[O[i]]}`:'none';el.classList.toggle('mg',!!Mg[i]);
+  el.querySelector('.hs').textContent=H[i]===5?'🏨':'🏠'.repeat(H[i]);
+  el.querySelector('.pw').innerHTML=S.pl.map((p,j)=>!p.out&&p.pos===i?`<i class="${j===S.cur?'me':''}" style="background:${COL[j]}"></i>`:'').join('')});
+ $('#rd').textContent=S.max?Math.min(S.round,S.max)+' / '+S.max:S.round;
+ $('#pls').innerHTML=S.pl.map((p,i)=>`<div class="pl${i===S.cur?' on':''}"${p.out?' style="opacity:.45;text-decoration:line-through"':''}><span class="dot" style="background:${COL[i]}"></span><div><b>${p.n}</b>${rp(p.m)} · ${O.filter(o=>o===i).length} aset${p.jail?' · 🚔':''}${p.fj?' · 🎟️×'+p.fj:''}<br>Kekayaan ${rp(worth(i))}<br>✔ ${p.ok} ✘ ${p.no}</div></div>`).join('');
  $('#turn').innerHTML=`Giliran: <span style="color:${COL[S.cur]}">${cp().n}</span>`;
  $('#log').innerHTML=S.log.map(l=>`<li>${l}</li>`).join('');
+ $('#mg').disabled=$('#roll').disabled;
 }
 const DOT={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
 const die=n=>`<span class="die">${Array.from({length:9},(_,i)=>`<b${DOT[n].includes(i+1)?' class="on"':''}></b>`).join('')}</span>`;
@@ -259,22 +264,43 @@ const face=(a,b)=>$('#dice').innerHTML=die(a)+die(b);
 function confetti(){const c=document.createElement('div');c.id='cf';c.innerHTML=Array.from({length:44},()=>`<span style="left:${r(0,98)}%;animation-delay:${r(0,20)/10}s;animation-duration:${r(25,50)/10}s">${pick(['🎉','🪙','⭐','💰','✨'])}</span>`).join('');document.body.appendChild(c);setTimeout(()=>c.remove(),7000)}
 
 /* ---------- Jalannya permainan ---------- */
-function roll(){
- $('#roll').disabled=true;$('#dice').classList.add('shake');let n=0;
- const an=setInterval(()=>{face(r(1,6),r(1,6));if(++n>8){clearInterval(an);const a=r(1,6),b=r(1,6);$('#dice').classList.remove('shake');face(a,b);log(`${cp().n} melempar ${a}+${b} = ${a+b}`);move(a+b)}},70);
-}
-function move(k){
- const P=cp(),st=setInterval(()=>{
-  P.pos=(P.pos+1)%20;
-  if(P.pos===0){P.m+=200;log(`${P.n} lewat START, gaji ${rp(200)}`)}
-  render();
-  if(--k===0){clearInterval(st);setTimeout(land,250)}
- },170);
-}
+function roll(){const P=cp();$('#roll').disabled=true;$('#mg').disabled=true;
+ if(!P.jail)return doRoll(0);
+ show(`<h2>🚔 Di Penjara</h2><p class="q">Sisa percobaan: ${P.jail}. Bayar denda Rp50rb, pakai kartu bebas penjara, atau coba lempar kembar (dua dadu sama).</p><div class="row"><button class="btn" id="jp" ${P.m<50?'disabled':''}>Bayar Rp50rb</button>${P.fj?'<button class="btn alt" id="jc">Pakai kartu</button>':''}<button class="btn alt" id="jr">Lempar kembar</button></div>`);
+ $('#jp').onclick=()=>{pay(P,50);P.jail=0;log(`${P.n} bayar denda penjara`);hide();doRoll(0)};
+ if(P.fj)$('#jc').onclick=()=>{P.fj--;P.jail=0;hide();doRoll(0)};
+ $('#jr').onclick=()=>{hide();doRoll(1)}}
+function doRoll(jt){const P=cp();$('#dice').classList.add('shake');let n=0;
+ const an=setInterval(()=>{face(r(1,6),r(1,6));if(++n>8){clearInterval(an);const a=r(1,6),b=r(1,6),d=a===b;$('#dice').classList.remove('shake');face(a,b);S.d=a+b;log(`${P.n} melempar ${a}+${b} = ${a+b}${d?' (kembar!)':''}`);
+  if(jt){if(d){P.jail=0;S.dbl=0;return move(a+b)}
+   if(--P.jail>0){render();return info('🚔 Gagal','Tidak kembar. Tetap di penjara.',endTurn)}
+   pay(P,50);log(`${P.n} bayar denda 50 dan keluar`);return info('🚔 Bebas','Percobaan habis: bayar Rp50rb lalu jalan.',()=>move(a+b))}
+  if(d&&++S.dc>=3){jail(P);render();return info('👮 Kembar 3x!','Kembar tiga kali berturut-turut: masuk penjara.',endTurn)}
+  S.dbl=d;move(a+b)}},70)}
+function move(k){const P=cp();hide();if(P.out)return endTurn();
+ const st=setInterval(()=>{P.pos=(P.pos+1)%40;if(P.pos===0){P.m+=200;log(`${P.n} lewat START, gaji ${rp(200)}`)}render();if(--k===0){clearInterval(st);setTimeout(land,250)}},170)}
+function jail(P){P.pos=10;P.jail=3;S.dbl=0;log(`${P.n} masuk penjara`)}
+function manage(){const P=cp(),me=S.cur,mine=T.map((_,i)=>i).filter(i=>O[i]===me),ub=t=>Math.round(t.p/2*1.1);
+ const rows=mine.map(i=>{const t=T[i],hs=H[i],st=t.set;
+  const cB=t.hc&&full(i)&&!st.some(j=>Mg[j])&&hs<5&&P.m>=t.hc&&st.every(j=>H[j]>=hs),cS=hs>0&&st.every(j=>H[j]<=hs),cM=!Mg[i]&&!(st&&st.some(j=>H[j]>0)),cU=Mg[i]&&P.m>=ub(t);
+  return`<div class="row" style="border-bottom:1px solid var(--line);margin:4px 0"><span class="dot" style="background:${t.g||'#ccc'}"></span><b style="flex:1">${t.e} ${t.n}</b><span>${Mg[i]?'🔒':hs===5?'🏨':'🏠'.repeat(hs)}</span>${t.hc?`<button class="btn sm" data-a="b${i}" ${cB?'':'disabled'}>+Rumah ${t.hc}</button><button class="btn alt sm" data-a="s${i}" ${cS?'':'disabled'}>Jual</button>`:''}<button class="btn alt sm" data-a="${Mg[i]?'u':'m'}${i}" ${(Mg[i]?cU:cM)?'':'disabled'}>${Mg[i]?'Tebus '+ub(t):'Gadai '+t.p/2}</button></div>`}).join('')||'<p>Belum punya aset.</p>';
+ show(`<h2>🏗️ Kelola Aset: ${P.n}</h2><p>Uang ${rp(P.m)}. Bangun rumah jika menguasai semua petak satu warna (harus rata, 5 = hotel). Jual rumah = setengah harga.</p>${rows}<div class="row"><button class="btn" id="cl2">Selesai</button></div>`);
+ document.querySelectorAll('#mod [data-a]').forEach(b=>b.onclick=()=>{const c=b.dataset.a[0],i=+b.dataset.a.slice(1),t=T[i];
+  if(c==='b'){P.m-=t.hc;H[i]++}else if(c==='s'){P.m+=t.hc/2;H[i]--}else if(c==='m'){P.m+=t.p/2;Mg[i]=1}else{P.m-=ub(t);Mg[i]=0}
+  render();manage()});
+ $('#cl2').onclick=hide}
 function show(h){const m=$('#mod');m.innerHTML=`<div class="card">${h}</div>`;m.style.display='flex';const b=m.querySelector('.btn');b&&b.focus()}
 const hide=()=>$('#mod').style.display='none';
 function info(title,txt,next){show(`<h2>${title}</h2><p class="q">${txt}</p><button class="btn" id="nx">Lanjut</button>`);$('#nx').onclick=next}
-function pay(P,amt,to){const a=Math.min(amt,P.m);P.m-=a;if(to!=null)S.pl[to].m+=a;return a}
+function pay(P,amt,to){
+ if(P.m<amt)raise(P,amt);
+ if(P.m<amt){const a=P.m;P.m=0;if(to!=null)S.pl[to].m+=a;broke(P,to);return a}
+ P.m-=amt;if(to!=null)S.pl[to].m+=amt;return amt}
+function raise(P,amt){const me=S.pl.indexOf(P),mine=T.map((_,i)=>i).filter(i=>O[i]===me);
+ while(P.m<amt){const i=mine.filter(i=>H[i]>0).sort((a,b)=>H[b]-H[a])[0];if(i==null)break;H[i]--;P.m+=T[i].hc/2;log(`${P.n} jual rumah di ${T[i].n}`)}
+ for(const i of mine){if(P.m>=amt)break;if(!Mg[i]){Mg[i]=1;P.m+=T[i].p/2;log(`${P.n} gadai ${T[i].n}`)}}}
+function broke(P,to){const me=S.pl.indexOf(P);P.out=1;P.jail=0;log(`💥 ${P.n} bangkrut!`);
+ T.forEach((_,i)=>{if(O[i]===me){H[i]=0;O[i]=to!=null?to:-1;if(to==null)Mg[i]=0}})}
 function ask(title,q,fx,next){
  const o=opts(q.a);
  show(`<h2>${title}</h2><p class="q">${q.q}</p><div class="ops">${o.map((v,k)=>`<button class="btn alt" data-v="${v}"><u>${'ABCD'[k]}</u>${fmt(v)}</button>`).join('')}</div><div id="fb"></div><div class="pad"><div class="row" style="margin:0 0 6px"><b>✏️ Kertas coret-coret</b><button class="btn alt sm" id="pn">Pensil</button><button class="btn alt sm" id="er">Penghapus</button><button class="btn alt sm" id="cl">Bersihkan</button><button class="btn alt sm" id="bg">⤢ Perbesar</button></div><canvas id="cv" aria-label="Kertas coret-coret"></canvas></div>`);
@@ -303,46 +329,59 @@ function pad(){
  $('#pn').onclick=()=>er=false;$('#er').onclick=()=>er=true;$('#cl').onclick=()=>x.clearRect(0,0,c.width,c.height);
  $('#bg').onclick=()=>{const on=c.classList.toggle('xl');$('#bg').textContent=on?'⤡ Perkecil':'⤢ Perbesar';fit();c.scrollIntoView({block:'nearest'})};
 }
+const CC=[{t:'Juara cerdas cermat! Terima Rp100rb',d:100},{t:'Menang undian kantin! Terima Rp150rb',d:150},{t:'Kesalahan bank menguntungkanmu. Terima Rp200rb',d:200},{t:'Beli buku latihan. Bayar Rp50rb',d:-50},{t:'Biaya dokter. Bayar Rp100rb',d:-100},{t:'Maju ke START, ambil gaji Rp200rb',go:1},{t:'Masuk Penjara! Tidak lewat START.',jail:1},{t:'Kartu Bebas Penjara! Simpan untuk nanti.',free:1},{t:'Mundur 3 petak',back:3},{t:'Ulang tahun! Terima Rp20rb dari tiap tim lain',each:20},{t:'Iuran kelas! Bayar Rp25rb ke tiap tim lain',each:-25},{t:'Perbaikan rumah: Rp25rb per rumah, Rp100rb per hotel',rep:1},{t:'Kuis Kilat! Benar +Rp150rb, salah −Rp50rb',z:1}];
+function rentOf(i,d){const t=T[i],o=O[i];
+ if(t.k==='n'){const n=[5,15,25,35].filter(j=>O[j]===o).length,a=25*2**(n-1);return{a,q:Q(`Pemilik punya ${n} stasiun. Sewa 1 stasiun = 25rb, dikali 2 untuk tiap tambahan stasiun. Berapa sewa ${t.n} (rb)?`,a,`Sewa 1 stasiun = 25rb; Dikali 2 tiap tambahan; Stasiun pemilik = ${n}`,'Besar sewa',[['Tulis rumus',`Sewa = 25 × 2^(n − 1) = 25 × 2^${n-1}`],['Hitung pangkatnya',`2^${n-1} = ${2**(n-1)}`],['Kalikan',...X(25,2**(n-1))]],`sewanya ${rp(a)}.`)}}
+ if(t.k==='u'){const n=[12,28].filter(j=>O[j]===o).length,k=n===2?10:4,a=k*d;return{a,q:Q(`Dadu terakhir berjumlah ${d}. Pemilik punya ${n} utilitas, sewa = ${k} × jumlah mata dadu. Berapa sewa ${t.n} (rb)?`,a,`Jumlah dadu = ${d}; Pengali = ${k}`,'Besar sewa',[['Kalikan pengali dengan jumlah dadu',...X(k,d)]],`sewanya ${rp(a)}.`)}}
+ const n=H[i],b=t.r0,m=n?[1,5,15,45,80,125][n]:full(i)?2:1,a=b*m,ds=n?(n===5?'1 hotel':n+' rumah'):full(i)?'semua warna dikuasai (tanpa rumah)':'sewa biasa';
+ return{a,q:Q(`${t.n}: sewa dasar ${rp(b)}. Kondisi: ${ds}, sehingga sewa dikali ${m}. Berapa sewanya (rb)?`,a,`Sewa dasar = ${b}rb; Pengali = ${m}`,'Besar sewa',[['Kalikan sewa dasar dengan pengali',...X(b,m)],['Cek masuk akal',`Pengali ${m} → sewa ${m>1?'lebih besar dari':'sama dengan'} sewa dasar ✓`]],`sewanya ${rp(a)}.`)}}
+function card(k){const P=cp(),me=S.cur,c=pick(CC),ti=k==='c'?'🎴 Kartu Kejutan':'📦 Dana Umum';
+ if(c.z)return info(ti,c.t,()=>ask('🎴 Kuis Kilat',newQ(),ok=>{ok?P.m+=150:pay(P,50);log(`${P.n} ${ok?'+':'−'}${rp(ok?150:50)} dari kartu`);return ok?'+Rp150rb!':'−Rp50rb.'},endTurn));
+ if(c.d)c.d>0?P.m+=c.d:pay(P,-c.d);
+ if(c.go){P.pos=0;P.m+=200}
+ if(c.jail)jail(P);
+ if(c.free)P.fj=(P.fj||0)+1;
+ if(c.each)S.pl.forEach((p,j)=>{if(j!==me&&!p.out)c.each>0?pay(p,c.each,me):pay(P,-c.each,j)});
+ if(c.rep)pay(P,O.reduce((s,o,j)=>s+(o===me?(H[j]===5?100:H[j]*25):0),0));
+ log(`${P.n}: ${c.t}`);render();
+ if(c.back){P.pos=(P.pos+37)%40;render();return info(ti,c.t,()=>{hide();land()})}
+ info(ti,c.t,endTurn)}
 function land(){
- const P=cp(),i=P.pos,t=T[i],me=S.cur;
- if(t.k==='s'||t.k==='r')return info(t.e+' '+t.n,t.k==='s'?'Kamu di START. Siap berhitung!':'Istirahat sejenak. Tidak terjadi apa-apa.',endTurn);
- if(t.k==='p'){
-  if(O[i]===me)return info(t.e+' '+t.n,'Ini asetmu sendiri. Aman!',endTurn);
-  if(O[i]<0){
-   const d=pick([10,15,20,25,30,40,50]),a=t.p*(100-d)/100;let disc=false;
-   return ask(`🏷️ ${t.n} (${rp(t.p)})`,Q(`Diskon ${d}%! ${t.n} (harga normal ${rp(t.p)}). Berapa harga setelah diskon (rb)?`,a,`Harga normal = ${t.p}rb; Diskon = ${d}%`,`Harga yang harus dibayar`,[['Hitung harga setelah diskon',...PB(t.p,d,false)],['Cek dengan cara lain',`Besar diskon = ${d}% × ${t.p} = ${t.p*d/100}`,`${t.p} − ${t.p*d/100} = ${a} ✓`]],`harga setelah diskon ${rp(a)}.`),
-
-    ok=>{disc=ok;return ok?`Kamu berhak harga diskon ${rp(a)}.`:`Harga normal ${rp(t.p)} berlaku.`},
-    ()=>{const pr=disc?a:t.p;show(`<h2>${t.e} ${t.n}</h2><p class="q">Beli seharga ${rp(pr)}? Uangmu ${rp(P.m)}.</p><div class="row"><button class="btn" id="by" ${P.m<pr?'disabled':''}>Beli</button><button class="btn alt" id="sk">Lewati</button></div>`);
-     $('#by').onclick=()=>{P.m-=pr;O[i]=me;log(`${P.n} membeli ${t.n} (${rp(pr)})`);endTurn()};$('#sk').onclick=endTurn});
-  }
-  const p=pick([10,15,20,25,50]),rent=t.p*p/100,ow=O[i];
-  return ask(`🏠 Sewa ${t.n} milik ${S.pl[ow].n}`,Q(`Sewa ${t.n} = ${p}% dari harga properti ${rp(t.p)}. Berapa sewanya (rb)?`,rent,`Harga properti = ${t.p}rb; Sewa = ${p}% dari harga`,`Besar sewa`,[['Hitung sewa',...PCT(p,t.p)],['Cek masuk akal',`Sewa ${rent} lebih kecil dari harga ${t.p} ✓`]],`sewanya ${rp(rent)}.`),
-
-   ok=>{const a=pay(P,ok?rent:rent+10,ow);log(`${P.n} bayar sewa ${rp(a)} ke ${S.pl[ow].n}`);return`Kamu membayar ${rp(a)} ke ${S.pl[ow].n}${ok?'.':' (termasuk denda 10).'}`},endTurn);
- }
+ const P=cp(),i=P.pos,t=T[i],me=S.cur,E=endTurn;
+ if(P.out)return E();
+ if(t.k==='s'||t.k==='f'||t.k==='j')return info(t.e+' '+t.n,t.k==='s'?'Tepat di START. Siap berhitung!':t.k==='f'?'Parkir gratis. Tidak terjadi apa-apa.':'Hanya mengunjungi penjara. Aman!',E);
+ if(t.k==='w'){jail(P);render();return info('👮 Masuk Penjara!','Kamu dikirim ke penjara tanpa gaji START.',E)}
+ if(t.k==='c'||t.k==='d')return card(t.k);
  if(t.k==='t'){
   const inc=r(5,20)*40,p=pick([10,20,25,50]),a=inc*p/100;
-  return ask('🧾 Pajak Penghasilan',Q(`Penghasilanmu ${rp(inc)} kena pajak ${p}%. Berapa pajaknya (rb)?`,a,`Penghasilan = ${inc}rb; Pajak = ${p}%`,`Besar pajak`,[['Hitung pajak',...PCT(p,inc)],['Uang tersisa setelah pajak',`${inc} − ${a} = ${inc-a}`]],`pajaknya ${rp(a)}.`),
-
-   ok=>{const b=pay(P,ok?a:a+20);log(`${P.n} bayar pajak ${rp(b)}`);return`Pajak dibayar ${rp(b)}${ok?'.':' (termasuk denda 20).'}`},endTurn);
+  return ask('🧾 '+t.n,Q(`Penghasilanmu ${rp(inc)} kena pajak ${p}%. Berapa pajaknya (rb)?`,a,`Penghasilan = ${inc}rb; Pajak = ${p}%`,`Besar pajak`,[['Hitung pajak',...PCT(p,inc)],['Uang tersisa setelah pajak',`${inc} − ${a} = ${inc-a}`]],`pajaknya ${rp(a)}.`),
+   ok=>{const b=pay(P,ok?a:a+20);log(`${P.n} bayar pajak ${rp(b)}`);return`Pajak dibayar ${rp(b)}${ok?'.':' (termasuk denda 20).'}`},E);
  }
- if(t.k==='q'){
-  return ask('❓ Kuis Kilat',newQ(),ok=>{ok?P.m+=100:pay(P,50);log(`${P.n} ${ok?'+':'−'}${rp(ok?100:50)} dari kuis`);return ok?'Bonus +Rp100rb!':'Kena −Rp50rb.'},endTurn);
+ const ow=O[i];
+ if(ow===me)return info(t.e+' '+t.n,'Ini asetmu sendiri. Aman!',E);
+ if(ow<0){
+  const d=pick([10,15,20,25,30,40,50].filter(x=>t.p*(100-x)%100===0)),a=t.p*(100-d)/100;let disc=false;
+  return ask(`🏷️ ${t.n} (${rp(t.p)})`,Q(`Diskon ${d}%! ${t.n} (harga normal ${rp(t.p)}). Berapa harga setelah diskon (rb)?`,a,`Harga normal = ${t.p}rb; Diskon = ${d}%`,`Harga yang harus dibayar`,[['Hitung harga setelah diskon',...PB(t.p,d,false)],['Cek dengan cara lain',`Besar diskon = ${d}% × ${t.p} = ${t.p*d/100}`,`${t.p} − ${t.p*d/100} = ${a} ✓`]],`harga setelah diskon ${rp(a)}.`),
+   ok=>{disc=ok;return ok?`Kamu berhak harga diskon ${rp(a)}.`:`Harga normal ${rp(t.p)} berlaku.`},
+   ()=>{const pr=disc?a:t.p;show(`<h2>${t.e} ${t.n}</h2><p class="q">Beli seharga ${rp(pr)}? Uangmu ${rp(P.m)}.</p><div class="row"><button class="btn" id="by" ${P.m<pr?'disabled':''}>Beli</button><button class="btn alt" id="sk">Lewati</button></div>`);
+    $('#by').onclick=()=>{P.m-=pr;O[i]=me;log(`${P.n} membeli ${t.n} (${rp(pr)})`);render();full(i)?info('🎉 Monopoli!','Kamu menguasai semua petak warna ini. Sewa jadi 2× dan kamu boleh membangun rumah lewat Kelola Aset.',E):E()};$('#sk').onclick=E});
  }
- const c=pick([{t:'Juara cerdas cermat! +Rp100rb',d:100},{t:'Iuran kas kelas −Rp50rb',d:-50},{t:'Menang undian kantin! +Rp150rb',d:150},{t:'Beli buku latihan −Rp80rb',d:-80},{t:'Maju ke START dan ambil gaji +Rp200rb',go:1},{t:'Kuis Kilat! Benar +Rp150rb, salah −Rp50rb',z:1},{t:'Kuis Kilat! Benar +Rp150rb, salah −Rp50rb',z:1}]);
- if(c.z)return info('🎴 Kartu Kejutan',c.t,()=>ask('🎴 Kuis Kilat',newQ(),ok=>{ok?P.m+=150:pay(P,50);log(`${P.n} ${ok?'+':'−'}${rp(ok?150:50)} dari kartu`);return ok?'+Rp150rb!':'−Rp50rb.'},endTurn));
- if(c.go){P.pos=0;P.m+=200}else c.d>0?P.m+=c.d:pay(P,-c.d);
- log(`${P.n}: ${c.t}`);render();info('🎴 Kartu Kejutan',c.t,endTurn);
+ if(Mg[i])return info(t.e+' '+t.n,`Milik ${S.pl[ow].n}, tetapi sedang digadaikan. Tidak ada sewa.`,E);
+ const R=rentOf(i,S.d);
+ return ask(`🏠 Sewa ${t.n} milik ${S.pl[ow].n}`,R.q,ok=>{const a=pay(P,ok?R.a:R.a+10,ow);log(`${P.n} bayar sewa ${rp(a)} ke ${S.pl[ow].n}`);return`Kamu membayar ${rp(a)} ke ${S.pl[ow].n}${ok?'.':' (termasuk denda 10).'}`},E);
 }
 function endTurn(){
- hide();S.cur=(S.cur+1)%S.pl.length;if(S.cur===0)S.round++;
- if(S.round>S.max)return over();
- render();$('#roll').disabled=false;
+ hide();if(S.pl.filter(p=>!p.out).length<2)return over();
+ const P=cp();
+ if(S.dbl&&!P.out&&!P.jail){S.dbl=0;log(`${P.n} kembar, lempar lagi!`);$('#roll').disabled=false;return render()}
+ S.dbl=0;S.dc=0;
+ do{S.cur=(S.cur+1)%S.pl.length;if(S.cur===0)S.round++}while(cp().out);
+ if(S.max&&S.round>S.max)return over();
+ $('#roll').disabled=false;render();
 }
 function over(){
- const rk=S.pl.map((p,i)=>({p,i,w:worth(i)})).sort((a,b)=>b.w-a.w);
- show(`<h2>🏆 Pemenang: ${rk[0].p.n}!</h2><p class="q">Kekayaan = uang + harga aset.</p>`+rk.map((x,k)=>`<div class="pl"><span class="dot" style="background:${COL[x.i]}"></span><div><b>${k+1}. ${x.p.n} — ${rp(x.w)}</b>Soal benar ${x.p.ok}, salah ${x.p.no}${x.p.ok+x.p.no?` (${Math.round(100*x.p.ok/(x.p.ok+x.p.no))}%)`:''}</div></div>`).join('')+`<div class="row"><button class="btn" id="ag">Main Lagi</button></div>`);
+ const rk=S.pl.map((p,i)=>({p,i,w:p.out?-1:worth(i)})).sort((a,b)=>b.w-a.w);
+ show(`<h2>🏆 Pemenang: ${rk[0].p.n}!</h2><p class="q">Kekayaan = uang + aset (harga + rumah).</p>`+rk.map((x,k)=>`<div class="pl"><span class="dot" style="background:${COL[x.i]}"></span><div><b>${k+1}. ${x.p.n} — ${x.p.out?'bangkrut':rp(x.w)}</b>Soal benar ${x.p.ok}, salah ${x.p.no}${x.p.ok+x.p.no?` (${Math.round(100*x.p.ok/(x.p.ok+x.p.no))}%)`:''}</div></div>`).join('')+`<div class="row"><button class="btn" id="ag">Main Lagi</button></div>`);
  $('#ag').onclick=()=>location.reload();confetti();
 }
 
@@ -351,8 +390,8 @@ function names(){const n=+$('#np').value,old=[...document.querySelectorAll('#nam
  $('#names').innerHTML=Array.from({length:n},(_,i)=>`<div class="row"><span class="dot" style="background:${COL[i]}"></span><input type="text" maxlength="14" aria-label="Nama tim ${i+1}" value="${old[i]||'Tim '+(i+1)}"></div>`).join('')}
 $('#np').onchange=names;names();
 $('#go').onclick=()=>{
- const ns=[...document.querySelectorAll('#names input')].map((x,i)=>x.value.trim()||'Tim '+(i+1));
- S={pl:ns.map(n=>({n,pos:0,m:1500,ok:0,no:0})),cur:0,round:1,max:+$('#mr').value,lvl:$('#lv').value,log:['Permainan dimulai. Selamat berhitung!']};
- O=Array(20).fill(-1);$('#setup').style.display='none';$('#game').style.display='grid';buildBoard();render();
+ const ns=[...document.querySelectorAll('#names input')].map((x,i)=>x.value.trim()||'Tim '+(i+1)),cap=+$('#cap').value;
+ S={pl:ns.map(n=>({n,pos:0,m:cap,ok:0,no:0,jail:0,fj:0,out:0})),cur:0,round:1,max:+$('#mr').value,lvl:$('#lv').value,dbl:0,dc:0,d:0,log:['Permainan dimulai. Selamat berhitung!']};
+ O=Array(40).fill(-1);H=Array(40).fill(0);Mg=Array(40).fill(0);$('#setup').style.display='none';$('#game').style.display='grid';buildBoard();render();
 };
 </script></body></html>
